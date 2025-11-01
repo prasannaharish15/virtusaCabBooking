@@ -1,0 +1,7 @@
+:host { display: block; }
+thead tr th { position: sticky; top: 0; z-index: 1; }
+tbody tr:hover { background-color: #F8F0FB; }
+th, td { white-space: nowrap; }
+a[routerLink="/admin/dashboard"]:focus { outline: 2px solid #A225CC; outline-offset: 2px; }
+
+

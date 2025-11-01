@@ -1,0 +1,52 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+      <div class="px-8 pt-8 pb-6 text-center">
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">Driver Registration</h1>
+        <p class="text-slate-600 text-sm">Sign up as a driver</p>
+      </div>
+  
+      <form [formGroup]="form" (ngSubmit)="submit()" class="px-8 pb-8 space-y-6">
+  
+        <!-- Name -->
+        <div class="relative">
+          <input id="name" type="text" formControlName="name" placeholder="Name"
+            class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg" />
+          <label for="name" class="absolute left-4 top-2 text-xs text-slate-600">Name</label>
+        </div>
+  
+        <!-- Email -->
+        <div class="relative">
+          <input id="email" type="email" formControlName="email" placeholder="Email"
+            class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg" />
+          <label for="email" class="absolute left-4 top-2 text-xs text-slate-600">Email</label>
+        </div>
+  
+        <!-- Vehicle Number -->
+        <div class="relative">
+          <input id="vehicleNumber" type="text" formControlName="vehicleNumber" placeholder="Vehicle number"
+            class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg" />
+          <label for="vehicleNumber" class="absolute left-4 top-2 text-xs text-slate-600">Vehicle Number</label>
+        </div>
+  
+        <!-- License Number -->
+        <div class="relative">
+          <input id="licenseNumber" type="text" formControlName="licenseNumber" placeholder="License number"
+            class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg" />
+          <label for="licenseNumber" class="absolute left-4 top-2 text-xs text-slate-600">License Number</label>
+        </div>
+  
+        <!-- Password -->
+        <div class="relative">
+          <input id="password" type="password" formControlName="password" placeholder="Password"
+            class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg" />
+          <label for="password" class="absolute left-4 top-2 text-xs text-slate-600">Password</label>
+        </div>
+  
+        <button type="submit"
+          class="w-full py-3 px-4 bg-[#a225cc] text-white font-semibold rounded-lg hover:bg-purple-700">
+          Register as Driver
+        </button>
+      </form>
+    </div>
+  </div>
+  

@@ -1,0 +1,83 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6 border border-purple-100">
+    <h2 class="text-2xl font-bold text-purple-700 mb-4">Ride Requests</h2>
+
+    <!-- If there are ride requests -->
+    <div *ngIf="rideRequests && rideRequests.length > 0; else noRequests">
+      <ul class="space-y-4">
+        <li
+          *ngFor="let request of rideRequests"
+          class="border border-purple-200 rounded-lg p-4 hover:shadow transition"
+        >
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <!-- Left side info -->
+            <div>
+              <p class="font-semibold text-lg text-gray-800">
+                {{ request.passengerName }}
+              </p>
+              <p class="text-gray-600">
+                Pickup: <span class="font-medium">{{ request.pickupLocation }}</span>
+              </p>
+              <p class="text-gray-600">
+                Drop: <span class="font-medium">{{ request.dropLocation }}</span>
+              </p>
+              <p class="text-sm text-gray-400">
+                Requested at: {{ request.requestedAt | date: "short" }}
+              </p>
+            </div>
+
+            <!-- Customer details visible upon acceptance -->
+            <div *ngIf="selectedRequest?.id === request.id && !showOtpBox" class="bg-purple-50 border border-purple-200 rounded p-3">
+              <p class="text-sm text-purple-800"><strong>Customer:</strong> {{ request.passengerName }}</p>
+              <p class="text-sm text-purple-800"><strong>Pickup:</strong> {{ request.pickupLocation }}</p>
+              <p class="text-sm text-purple-800"><strong>Drop:</strong> {{ request.dropLocation }}</p>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="space-x-2">
+              <button
+                (click)="acceptRequest(request)"
+                class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition"
+              >
+                Accept
+              </button>
+              <button
+                (click)="rejectRequest(request.id)"
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- If no ride requests -->
+    <ng-template #noRequests>
+      <p class="text-center text-gray-500 mt-20">
+        No ride requests at the moment 🚗💨
+      </p>
+    </ng-template>
+  </div>
+
+  <!-- OTP Modal/Box -->
+  <div *ngIf="showOtpBox" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md border border-purple-200">
+      <h3 class="text-xl font-semibold text-purple-700 mb-4">Enter Customer OTP</h3>
+      <p class="text-sm text-gray-600 mb-3">Share the OTP with the customer and enter the code to confirm the ride.</p>
+      <input maxlength="6" [(ngModel)]="otp" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 tracking-widest text-center text-lg" placeholder="_ _ _ _"/>
+      <div class="mt-4 flex items-center gap-3">
+        <button (click)="confirmOtp()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded">Confirm</button>
+        <button (click)="showOtpBox=false" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+        <span class="text-sm" [ngClass]="{'text-green-700': acceptMessage==='Ride accepted', 'text-red-700': acceptMessage==='Failed to accept ride' || acceptMessage==='Enter valid OTP'}">{{ acceptMessage }}</span>
+      </div>
+      <div *ngIf="selectedRequest" class="mt-4 bg-purple-50 border border-purple-200 rounded p-3">
+        <p class="text-sm text-purple-800"><strong>Customer:</strong> {{ selectedRequest.passengerName }}</p>
+        <p class="text-sm text-purple-800"><strong>Pickup:</strong> {{ selectedRequest.pickupLocation }}</p>
+        <p class="text-sm text-purple-800"><strong>Drop:</strong> {{ selectedRequest.dropLocation }}</p>
+      </div>
+    </div>
+  </div>
+
+</div>

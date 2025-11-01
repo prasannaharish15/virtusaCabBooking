@@ -1,0 +1,19 @@
+<div class="flex flex-col items-center gap-4 bg-gray-100 p-4 rounded shadow">
+  <div *ngIf="!isOnBreak" class="w-full flex flex-col gap-2">
+    <label class="font-semibold">Choose break reason:</label>
+    <select [(ngModel)]="breakReason" class="rounded border px-2 py-1 w-full">
+      <option *ngFor="let reason of breakReasons" [value]="reason">{{ reason }}</option>
+    </select>
+    <button (click)="startBreak()"
+            [disabled]="!breakReason"
+            class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-4 py-2 rounded">
+      Start Break
+    </button>
+  </div>
+  <div *ngIf="isOnBreak" class="w-full flex flex-col items-center gap-2">
+    <span class="text-yellow-600 font-bold text-lg">On Break: {{ breakReason }}</span>
+    <button (click)="endBreak()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded">
+      Resume Availability
+    </button>
+  </div>
+</div>

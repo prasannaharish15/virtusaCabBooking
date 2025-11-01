@@ -1,0 +1,39 @@
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btn-primary {
+  background-color: #7c3aed;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #6d28d9;
+}
+
+.btn-outline {
+  border: 2px solid #7c3aed;
+  color: #7c3aed;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-outline:hover {
+  background-color: #7c3aed;
+  color: white;
+}
+
+

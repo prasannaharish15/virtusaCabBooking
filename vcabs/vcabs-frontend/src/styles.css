@@ -1,0 +1,4 @@
+@import "tailwindcss";
+
+/* Note: Removed @apply usage to avoid Tailwind build errors in this setup. 
+   Use Tailwind utility classes directly in templates (HTML) for styling. */

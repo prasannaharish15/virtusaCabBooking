@@ -1,0 +1,53 @@
+<div class="min-h-screen bg-[#E6E6E6] p-6">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-[#4B006E] text-2xl font-semibold">Audit Log</h2>
+    <button 
+      (click)="goToDashboard()"
+      class="bg-[#A225CC] hover:bg-[#8B1FA8] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      Back to Dashboard
+    </button>
+  </div>
+
+  <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-[#A225CC] text-white">
+        <tr>
+          <th class="px-6 py-3 text-left text-sm font-medium uppercase">Timestamp</th>
+          <th class="px-6 py-3 text-left text-sm font-medium uppercase">Actor Type</th>
+          <th class="px-6 py-3 text-left text-sm font-medium uppercase">Actor Name</th>
+          <th class="px-6 py-3 text-left text-sm font-medium uppercase">Action</th>
+          <th class="px-6 py-3 text-left text-sm font-medium uppercase">Entity</th>
+          <th class="px-6 py-3 text-left text-sm font-medium uppercase">Details</th>
+          <th class="px-6 py-3 text-left text-sm font-medium uppercase">Status</th>
+          <th class="px-6 py-3 text-left text-sm font-medium uppercase">IP Address</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let log of auditLogs" class="hover:bg-[#F8F0FB]">
+          <td class="px-6 py-4 text-sm text-gray-700">{{ log.timestamp }}</td>
+          <td class="px-6 py-4 text-sm font-medium"
+              [ngClass]="{
+                'text-purple-600': log.actorType==='Admin',
+                'text-blue-600': log.actorType==='Driver',
+                'text-green-600': log.actorType==='Customer'
+              }">
+            {{ log.actorType }}
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ log.actorName }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ log.action }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ log.entity }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ log.details }}</td>
+          <td class="px-6 py-4 text-sm font-semibold"
+              [ngClass]="{'text-green-600': log.status==='Success','text-red-600': log.status==='Failed'}">
+            {{ log.status }}
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ log.ipAddress }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+

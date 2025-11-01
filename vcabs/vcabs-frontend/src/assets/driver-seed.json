@@ -1,0 +1,38 @@
+{
+  "stats": { "today": { "rides": 0, "earnings": 0 } },
+  "earnings": [
+  ],
+  "completed": [
+  ],
+  "ongoing": [
+  ],
+  "rideRequests": [
+    {
+      "id": "REQ301",
+      "passengerName": "Anita Sharma",
+      "pickupLocation": "Brigade Road",
+      "dropLocation": "Indiranagar",
+      "fare": 220,
+      "distance": 8,
+      "requestedAt": "2025-10-28T15:00:00.000Z"
+    },
+    {
+      "id": "REQ302",
+      "passengerName": "Vikram S",
+      "pickupLocation": "Koramangala",
+      "dropLocation": "HSR Layout",
+      "fare": 180,
+      "distance": 5,
+      "requestedAt": "2025-10-28T15:05:00.000Z"
+    },
+    {
+      "id": "REQ303",
+      "passengerName": "Neha Verma",
+      "pickupLocation": "Whitefield",
+      "dropLocation": "Marathahalli",
+      "fare": 320,
+      "distance": 12,
+      "requestedAt": "2025-10-28T14:55:00.000Z"
+    }
+  ]
+}

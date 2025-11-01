@@ -1,0 +1,112 @@
+<!--<div class="min-h-screen bg-[#E6E6E6] flex flex-col">
+  <header class="flex items-center justify-between px-5 py-3 bg-[#A225CC] text-white shadow">
+    <div class="flex items-center gap-3 text-lg font-semibold">
+      
+      <img class="h-8 w-auto" [src]="'assets/vcabs-logo.png'" alt="VcabsLogo" />
+
+      <span>Vcabs Admin Dashboard</span>
+    </div>
+    <button class="border border-white/80 rounded-md px-3 py-1.5 hover:bg-white/15 text-sm" type="button">Logout</button>
+  </header>
+
+  <nav class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5">
+    <a class="block rounded-lg border border-[#A225CC] bg-white shadow-sm p-5 min-h-[90px] text-center text-sm font-semibold hover:bg-[#F8F0FB] hover:border-[#8E1EB3]" routerLink="/admin/active-rides">Active Rides</a>
+    <a class="block rounded-lg border border-[#A225CC] bg-white shadow-sm p-5 min-h-[90px] text-center text-sm font-semibold hover:bg-[#F8F0FB] hover:border-[#8E1EB3]" routerLink="/admin/completed-rides">Completed Rides</a>
+    <button class="block rounded-lg border border-[#A225CC] bg-white shadow-sm p-5 min-h-[90px] text-center text-sm font-semibold hover:bg-[#F8F0FB] hover:border-[#8E1EB3]">Cancelled Rides</button>
+    <a class="block rounded-lg border border-[#A225CC] bg-white shadow-sm p-5 min-h-[90px] text-center text-sm font-semibold hover:bg-[#F8F0FB] hover:border-[#8E1EB3]" routerLink="/admin/customers">Customers</a>
+    <button class="block rounded-lg border border-[#A225CC] bg-white shadow-sm p-5 min-h-[90px] text-center text-sm font-semibold hover:bg-[#F8F0FB] hover:border-[#8E1EB3]">Drivers</button>
+    <button class="block rounded-lg border border-[#A225CC] bg-white shadow-sm p-5 min-h-[90px] text-center text-sm font-semibold hover:bg-[#F8F0FB] hover:border-[#8E1EB3]">Billing</button>
+    <a class="block rounded-lg border border-[#A225CC] bg-white shadow-sm p-5 min-h-[90px] text-center text-sm font-semibold hover:bg-[#F8F0FB] hover:border-[#8E1EB3]" routerLink="/admin/revenue">Revenue</a>
+    <button class="block rounded-lg border border-[#A225CC] bg-white shadow-sm p-5 min-h-[90px] text-center text-sm font-semibold hover:bg-[#F8F0FB] hover:border-[#8E1EB3]">Audit Log</button>
+    <button class="block rounded-lg border border-[#A225CC] bg-white shadow-sm p-5 min-h-[90px] text-center text-sm font-semibold hover:bg-[#F8F0FB] hover:border-[#8E1EB3]">Rent</button>
+  </nav>
+</div> -->
+<div class="min-h-screen bg-[#E6E6E6] flex flex-col font-[Inter,sans-serif]">
+  <!-- Header -->
+  <header class="flex items-center justify-between px-6 py-4 bg-[#A225CC] text-white shadow-lg">
+    <div class="flex items-center gap-3 text-lg font-semibold tracking-wide">
+      <!--<img class="h-9 w-auto drop-shadow-md" [src]="'assets/vcabs-logo.png'" alt="VcabsLogo" /> -->
+      <img class="h-12 w-auto drop-shadow-md" [src]="'assets/vcabs-logo.png'" alt="VcabsLogo" />
+
+      <span class="text-xl">Vcabs Admin Dashboard</span>
+    </div>
+    <div>
+      <a
+      class="bg-[#A225CC] hover:bg-[#8B1FA8] text-white px-6 py-2 rounded-lg font-medium transition-colors"
+      routerLink="/auth/login"
+      >Logout</a>
+    </div>
+  </header>
+
+  <!-- Dashboard Navigation -->
+  <main class="flex-1 p-6">
+    <h2 class="text-[#4B006E] text-lg font-semibold mb-4">Dashboard Overview</h2>
+    
+    <nav class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <a
+        class="group rounded-xl border border-[#A225CC]/70 bg-white shadow-md p-6 min-h-[100px] flex flex-col items-center justify-center text-center text-base font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:bg-[#F8F0FB]"
+        routerLink="/admin/active-rides"
+      >
+        <span class="text-[#A225CC] group-hover:scale-110 transition-transform duration-200">Active Rides</span>
+      </a>
+
+      <a
+        class="group rounded-xl border border-[#A225CC]/70 bg-white shadow-md p-6 min-h-[100px] flex flex-col items-center justify-center text-center text-base font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:bg-[#F8F0FB]"
+        routerLink="/admin/completed-rides"
+      >
+        <span class="text-[#A225CC] group-hover:scale-110 transition-transform duration-200">Completed Rides</span>
+      </a>
+
+      <a
+        class="group rounded-xl border border-[#A225CC]/70 bg-white shadow-md p-6 min-h-[100px] flex flex-col items-center justify-center text-center text-base font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:bg-[#F8F0FB]"
+        routerLink="/admin/cancelled-rides"
+      >
+        <span class="text-[#A225CC] group-hover:scale-110 transition-transform duration-200">Cancelled Rides</span>
+    </a>
+
+      <a
+        class="group rounded-xl border border-[#A225CC]/70 bg-white shadow-md p-6 min-h-[100px] flex flex-col items-center justify-center text-center text-base font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:bg-[#F8F0FB]"
+        routerLink="/admin/customers"
+      >
+        <span class="text-[#A225CC] group-hover:scale-110 transition-transform duration-200">Customers</span>
+      </a>
+
+      <a
+        class="group rounded-xl border border-[#A225CC]/70 bg-white shadow-md p-6 min-h-[100px] flex flex-col items-center justify-center text-center text-base font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:bg-[#F8F0FB]"
+        routerLink="/admin/driver"
+      >
+        <span class="text-[#A225CC] group-hover:scale-110 transition-transform duration-200">Driver</span>
+      </a>
+
+      <a
+        class="group rounded-xl border border-[#A225CC]/70 bg-white shadow-md p-6 min-h-[100px] flex flex-col items-center justify-center text-center text-base font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:bg-[#F8F0FB]"
+        routerLink="/admin/billing"
+        
+      >
+        <span class="text-[#A225CC] group-hover:scale-110 transition-transform duration-200">Billing</span>
+  </a>
+
+      <a
+        class="group rounded-xl border border-[#A225CC]/70 bg-white shadow-md p-6 min-h-[100px] flex flex-col items-center justify-center text-center text-base font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:bg-[#F8F0FB]"
+        routerLink="/admin/revenue"
+      >
+        <span class="text-[#A225CC] group-hover:scale-110 transition-transform duration-200">Revenue</span>
+      </a>
+
+      <a
+        class="group rounded-xl border border-[#A225CC]/70 bg-white shadow-md p-6 min-h-[100px] flex flex-col items-center justify-center text-center text-base font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:bg-[#F8F0FB]"
+        routerLink="/admin/audit-log"
+      >
+        <span class="text-[#A225CC] group-hover:scale-110 transition-transform duration-200">Audit Log</span>
+      </a>
+
+      <a
+        class="group rounded-xl border border-[#A225CC]/70 bg-white shadow-md p-6 min-h-[100px] flex flex-col items-center justify-center text-center text-base font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:bg-[#F8F0FB]"
+        routerLink="/admin/rental"
+      >
+        <span class="text-[#A225CC] group-hover:scale-110 transition-transform duration-200">Rental</span>
+    </a>
+    </nav>
+  </main>
+</div>
+

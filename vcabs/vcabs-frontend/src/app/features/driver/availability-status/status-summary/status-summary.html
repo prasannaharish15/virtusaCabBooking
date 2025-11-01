@@ -1,0 +1,65 @@
+<div class="bg-white rounded shadow p-6 max-w-lg mx-auto space-y-4">
+  
+  <!-- Current Status Display -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <div [ngClass]="{
+          'text-green-700 bg-green-100': currentStatus === 'Online',
+          'text-red-600 bg-red-100': currentStatus === 'Offline',
+          'text-yellow-600 bg-yellow-100': currentStatus === 'Break'
+        }"
+        class="font-bold text-lg px-3 py-1 rounded-full">
+        {{ currentStatus }}
+      </div>
+      <span class="text-gray-500 text-sm">since {{ currentTimestamp | date:'shortTime' }}</span>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex gap-2">
+    <button 
+      (click)="downloadStatusLogs()"
+      class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+      Download JSON
+    </button>
+    <button 
+      (click)="clearLogs()"
+      class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700">
+      Clear Logs
+    </button>
+  </div>
+
+  <hr>
+
+  <!-- Status Logs History -->
+  <div>
+    <h3 class="font-semibold text-base mb-3">Status Change History ({{ statusLogs.length }} entries)</h3>
+    
+    <div *ngIf="statusLogs.length === 0" class="text-gray-500 italic text-sm">
+      No status changes recorded yet.
+    </div>
+    
+    <div class="space-y-2 max-h-64 overflow-y-auto">
+      <div *ngFor="let log of statusLogs; let i = index" 
+           class="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+        <div class="flex items-center gap-2">
+          <div [ngClass]="{
+            'text-green-700': log.status === 'Online',
+            'text-red-600': log.status === 'Offline',
+            'text-yellow-600': log.status === 'Break'
+          }" class="font-medium">
+            {{ log.status }}
+          </div>
+          <span *ngIf="log.reason" class="text-gray-600">– {{ log.reason }}</span>
+          <span *ngIf="log.note" class="text-gray-600">{{ log.note }}</span>
+        </div>
+        <div class="text-gray-500 text-xs">
+          {{ log.timestamp | date:'short' }}
+          <br>
+          <span class="text-gray-400">({{ getStatusDuration(log, i) }})</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,91 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+       animate.enter="fade-slide-in">
+    <div class="px-8 pt-8 pb-6 text-center">
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Create Account</h1>
+      <p class="text-slate-600 text-sm">Sign up for a cab booking account</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="px-8 pb-8 space-y-6">
+      <!-- Name Field -->
+      <div class="relative">
+        <input id="name" type="text" formControlName="name"
+          class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder-transparent"
+          placeholder="Your name"
+          [class.border-red-500]="f['name'].invalid && f['name'].touched"
+        />
+        <label for="name"
+          class="absolute left-4 top-2 text-xs text-slate-600 transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary"
+          [class.text-red-500]="f['name'].invalid && f['name'].touched">
+          Name
+        </label>
+        <div class="mt-1 text-xs text-red-500 min-h-[16px]" *ngIf="f['name'].invalid && f['name'].touched">
+          Name is required.
+        </div>
+      </div>
+
+      <!-- Email Field -->
+      <div class="relative">
+        <input id="email" type="email" formControlName="email"
+          class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder-transparent"
+          placeholder="Email address"
+          [class.border-red-500]="f['email'].invalid && f['email'].touched"
+        />
+        <label for="email"
+          class="absolute left-4 top-2 text-xs text-slate-600 transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary"
+          [class.text-red-500]="f['email'].invalid && f['email'].touched">
+          Email address
+        </label>
+        <div class="mt-1 text-xs text-red-500 min-h-[16px]" *ngIf="f['email'].invalid && f['email'].touched">
+          <span *ngIf="f['email'].errors?.['required']">Email is required.</span>
+          <span *ngIf="f['email'].errors?.['email']">Invalid email format.</span>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="relative">
+        <input id="password" type="password" formControlName="password"
+          class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder-transparent"
+          placeholder="Password"
+          [class.border-red-500]="f['password'].invalid && f['password'].touched"
+        />
+        <label for="password"
+          class="absolute left-4 top-2 text-xs text-slate-600 transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary"
+          [class.text-red-500]="f['password'].invalid && f['password'].touched">
+          Password
+        </label>
+        <div class="mt-1 text-xs text-red-500 min-h-[16px]" *ngIf="f['password'].invalid && f['password'].touched">
+          <span *ngIf="f['password'].errors?.['required']">Password is required.</span>
+          <span *ngIf="f['password'].errors?.['minlength']">
+            Password must be at least {{ f['password'].errors?.['minlength']?.requiredLength }} characters.
+
+          </span>
+        </div>
+      </div>
+
+      <!-- Error Message Display -->
+      <div *ngIf="errorMessage" class="text-center text-red-600 text-sm">{{ errorMessage }}</div>
+
+      <!-- Submit Button -->
+      <button type="submit"
+        [disabled]="isLoading"
+        class="w-full py-3 px-4 bg-[#a225cc] text-white font-semibold rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+        <span *ngIf="isLoading" class="flex items-center justify-center">
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Creating account...
+        </span>
+        <span *ngIf="!isLoading">Sign Up</span>
+      </button>
+
+      <div class="text-center mt-6">
+        <p class="text-sm text-slate-600">
+          Already have an account?
+          <a routerLink="/auth/login" class="text-[#a225cc] hover:text-purple-700 font-medium transition-colors duration-200">Login here</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

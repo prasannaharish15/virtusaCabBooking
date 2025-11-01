@@ -1,0 +1,213 @@
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-lg p-2">
+              <svg viewBox="0 0 200 200" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Shield outline -->
+                <path d="M100 10 L170 40 L170 100 C170 140 140 170 100 190 C60 170 30 140 30 100 L30 40 Z" 
+                      stroke="black" stroke-width="8" fill="white"/>
+                
+                <!-- Car body -->
+                <rect x="60" y="100" width="80" height="35" rx="5" fill="black"/>
+                <rect x="70" y="95" width="60" height="10" rx="3" fill="black"/>
+                
+                <!-- Car windows -->
+                <rect x="75" y="105" width="15" height="8" rx="1" fill="white"/>
+                <rect x="110" y="105" width="15" height="8" rx="1" fill="white"/>
+                
+                <!-- Car wheels -->
+                <circle cx="75" cy="135" r="8" fill="black"/>
+                <circle cx="125" cy="135" r="8" fill="black"/>
+                
+                <!-- Location pin -->
+                <path d="M100 50 C90 50 82 58 82 68 C82 78 100 95 100 95 C100 95 118 78 118 68 C118 58 110 50 100 50 Z" 
+                      fill="black"/>
+                <circle cx="100" cy="68" r="5" fill="white"/>
+                
+                <!-- vCabs text -->
+                <text x="100" y="165" font-family="Arial, sans-serif" font-size="28" font-weight="bold" 
+                      text-anchor="middle" fill="black">vCabs</text>
+              </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900">vCabs Booking System</h1>
+          </div>
+          <div class="flex items-center space-x-4">
+            <span class="text-gray-700 font-medium">Welcome, {{ customer.name || 'User' }}</span>
+            <div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-700 rounded-full flex items-center justify-center shadow-lg">
+              <span class="text-white text-lg font-semibold">{{ (customer.name || 'U').charAt(0) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div *ngIf="!isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Total Bookings -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+          <p class="text-sm font-medium opacity-90 mb-1">Total Bookings</p>
+          <p class="text-4xl font-bold">{{ stats.totalBookings }}</p>
+        </div>
+        
+        <!-- Total Spent -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-6 text-white">
+          <p class="text-sm font-medium opacity-90 mb-1">Total Spent</p>
+          <p class="text-4xl font-bold">₹{{ stats.totalSpent }}</p>
+        </div>
+        
+        <!-- Average Booking -->
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
+          <p class="text-sm font-medium opacity-90 mb-1">Avg. Booking</p>
+          <p class="text-4xl font-bold">₹{{ stats.averageBookingValue }}</p>
+        </div>
+        
+        <!-- Favorite Cab -->
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg p-6 text-white">
+          <p class="text-sm font-medium opacity-90 mb-1">Favorite Cab</p>
+          <p class="text-3xl font-bold">{{ stats.favoriteCabType }}</p>
+        </div>
+      </div>
+  
+      <!-- Booking Types -->
+      <div *ngIf="!isLoading" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Quick Booking -->
+        <div class="bg-white rounded-2xl shadow-md p-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Booking</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Trip Booking -->
+            <button routerLink="/passenger/booking/trip" class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-2xl p-8 hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div class="text-center">
+                <div class="text-3xl mb-3">🚗</div>
+                <div class="text-lg font-bold mb-1">Trip Booking</div>
+                <div class="text-sm opacity-90">Local rides</div>
+              </div>
+            </button>
+            
+            <!-- Intercity -->
+            <button routerLink="/passenger/booking/intercity" class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl p-8 hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div class="text-center">
+                <div class="text-3xl mb-3">🏙️</div>
+                <div class="text-lg font-bold mb-1">Intercity</div>
+                <div class="text-sm opacity-90">City to city</div>
+              </div>
+            </button>
+            
+            <!-- Rental -->
+            <button routerLink="/passenger/booking/rental" class="bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-2xl p-8 hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div class="text-center">
+                <div class="text-3xl mb-3">⏰</div>
+                <div class="text-lg font-bold mb-1">Rental</div>
+                <div class="text-sm opacity-90">Hourly rental</div>
+              </div>
+            </button>
+            
+            <!-- Reserve -->
+            <button routerLink="/passenger/booking/reserve" class="bg-gradient-to-br from-blue-600 to-purple-600 text-white rounded-2xl p-8 hover:shadow-xl transition-all duration-200 hover:scale-105">
+              <div class="text-center">
+                <div class="text-3xl mb-3">📅</div>
+                <div class="text-lg font-bold mb-1">Reserve</div>
+                <div class="text-sm opacity-90">Advance booking</div>
+              </div>
+            </button>
+          </div>
+        </div>
+  
+        <!-- Booking Statistics -->
+        <div class="bg-white rounded-2xl shadow-md p-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Booking Statistics</h2>
+          <div class="space-y-4">
+            <!-- Trip Bookings -->
+            <div class="flex justify-between items-center py-4 border-b border-gray-100">
+              <span class="text-gray-700 font-medium text-lg">Trip Bookings</span>
+              <span class="text-2xl font-bold text-purple-600">{{ stats.bookingsByType.trip }}</span>
+            </div>
+            
+            <!-- Intercity Bookings -->
+            <div class="flex justify-between items-center py-4 border-b border-gray-100">
+              <span class="text-gray-700 font-medium text-lg">Intercity Bookings</span>
+              <span class="text-2xl font-bold text-blue-600">{{ stats.bookingsByType.intercity }}</span>
+            </div>
+            
+            <!-- Rental Bookings -->
+            <div class="flex justify-between items-center py-4 border-b border-gray-100">
+              <span class="text-gray-700 font-medium text-lg">Rental Bookings</span>
+              <span class="text-2xl font-bold text-green-600">{{ stats.bookingsByType.rental }}</span>
+            </div>
+            
+            <!-- Reserve Bookings -->
+            <div class="flex justify-between items-center py-4">
+              <span class="text-gray-700 font-medium text-lg">Reserve Bookings</span>
+              <span class="text-2xl font-bold text-orange-600">{{ stats.bookingsByType.reserve }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Recent Bookings -->
+      <div *ngIf="!isLoading" class="bg-white rounded-2xl shadow-md p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Recent Bookings</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead>
+              <tr class="border-b-2 border-gray-200">
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">RIDE ID</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">TYPE</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">ROUTE</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">CAB</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">AMOUNT</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">STATUS</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">DATE</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let booking of recentBookings" class="hover:bg-gray-50 focus-within:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ booking.rideId }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full"
+                        [ngClass]="{
+                          'bg-purple-100 text-purple-800': getBookingType(booking.rideType) === 'trip',
+                          'bg-blue-100 text-blue-800': getBookingType(booking.rideType) === 'intercity',
+                          'bg-green-100 text-green-800': getBookingType(booking.rideType) === 'rental',
+                          'bg-orange-100 text-orange-800': getBookingType(booking.rideType) === 'reserve'
+                        }">
+                    {{ booking.rideType | titlecase }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  {{ booking.pickUpLocation }} → {{ booking.dropOffLocation }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ booking.cabType }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{{ booking.fare }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 text-xs font-semibold rounded-full"
+                        [ngClass]="{
+                          'bg-yellow-100 text-yellow-800': formatStatus(booking.status) === 'pending',
+                          'bg-green-100 text-green-800': formatStatus(booking.status) === 'completed' || formatStatus(booking.status) === 'confirmed',
+                          'bg-red-100 text-red-800': formatStatus(booking.status) === 'cancelled',
+                          'bg-blue-100 text-blue-800': formatStatus(booking.status) === 'in progress'
+                        }">
+                    {{ formatStatus(booking.status) | titlecase }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ booking.acceptAt | date:'short' }}</td>
+              </tr>
+              <tr *ngIf="recentBookings.length === 0">
+                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                  No recent bookings found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>

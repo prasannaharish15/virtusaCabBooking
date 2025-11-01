@@ -1,0 +1,33 @@
+:host {
+  display: block;
+}
+
+/* Table sizing to encourage horizontal scroll inside the overflow container */
+table {
+  min-width: 880px;
+}
+
+/* Sticky header for better readability when scrolling */
+thead tr th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Row hover to match the light purple used elsewhere (#F8F0FB) */
+tbody tr:hover {
+  background-color: #F8F0FB;
+}
+
+/* Cell spacing consistency on very narrow viewports */
+th, td {
+  white-space: nowrap;
+}
+
+/* Subtle focus ring for keyboard accessibility on the back button */
+a[routerLink="/admin/dashboard"]:focus {
+  outline: 2px solid #A225CC;
+  outline-offset: 2px;
+}
+
+

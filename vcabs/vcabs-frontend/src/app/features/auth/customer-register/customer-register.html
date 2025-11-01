@@ -1,0 +1,123 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+    <div class="px-8 pt-8 pb-6 text-center">
+      <h1 class="text-3xl font-bold text-slate-900 mb-2">Customer Registration</h1>
+      <p class="text-slate-600 text-sm">Sign up for a customer cab account</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="px-8 pb-8 space-y-6">
+
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div class="text-green-700 text-sm font-medium">{{ successMessage }}</div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div class="text-red-700 text-sm font-medium">{{ errorMessage }}</div>
+      </div>
+
+      <!-- User Name -->
+      <div class="relative">
+        <input type="text" id="userName" formControlName="userName"
+               class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder-transparent"
+               placeholder="User Name"
+               [class.border-red-500]="f['userName'].invalid && f['userName'].touched" />
+        <label for="userName"
+               class="absolute left-4 top-2 text-xs text-slate-600 transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary"
+               [class.text-red-500]="f['userName'].invalid && f['userName'].touched">User Name</label>
+        <div class="mt-1 text-xs text-red-500 min-h-[16px]" *ngIf="f['userName'].invalid && f['userName'].touched">User Name is required.</div>
+      </div>
+
+      <!-- Email -->
+      <div class="relative mt-4">
+        <input type="email" id="email" formControlName="email"
+               class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder-transparent"
+               placeholder="Email"
+               [class.border-red-500]="f['email'].invalid && f['email'].touched" />
+        <label for="email"
+               class="absolute left-4 top-2 text-xs text-slate-600 transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary"
+               [class.text-red-500]="f['email'].invalid && f['email'].touched">Email</label>
+        <div class="mt-1 text-xs text-red-500 min-h-[16px]" *ngIf="f['email'].invalid && f['email'].touched">
+          <span *ngIf="f['email'].errors?.['required']">Email is required.</span>
+          <span *ngIf="f['email'].errors?.['email']">Invalid email format.</span>
+        </div>
+      </div>
+
+      <!-- Phone Number -->
+      <div class="relative mt-4">
+        <input type="text" id="phoneNumber" formControlName="phoneNumber"
+               class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder-transparent"
+               placeholder="Phone number"
+               [class.border-red-500]="f['phoneNumber'].invalid && f['phoneNumber'].touched" />
+        <label for="phoneNumber"
+               class="absolute left-4 top-2 text-xs text-slate-600 transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary"
+               [class.text-red-500]="f['phoneNumber'].invalid && f['phoneNumber'].touched">Phone Number</label>
+        <div class="mt-1 text-xs text-red-500 min-h-[16px]" *ngIf="f['phoneNumber'].invalid && f['phoneNumber'].touched">
+          <span *ngIf="f['phoneNumber'].errors?.['required']">Phone number is required.</span>
+          <span *ngIf="f['phoneNumber'].errors?.['pattern']">Enter valid 10-digit phone number.</span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="relative mt-4">
+        <input id="password" type="password" formControlName="password"
+               class="peer w-full px-4 pt-6 pb-2 text-slate-900 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder-transparent"
+               placeholder="Password"
+               [class.border-red-500]="f['password'].invalid && f['password'].touched" />
+        <label for="password"
+               class="absolute left-4 top-2 text-xs text-slate-600 transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary"
+               [class.text-red-500]="f['password'].invalid && f['password'].touched">Password</label>
+        <div class="mt-1 text-xs text-red-500 min-h-[16px]" *ngIf="f['password'].invalid && f['password'].touched">
+          <span *ngIf="f['password'].errors?.['required']">Password is required.</span>
+          <span *ngIf="f['password'].errors?.['minlength']">
+            Password must be at least {{ f['password'].errors?.['minlength']?.requiredLength }} characters.
+          </span>
+        </div>
+      </div>
+
+      <!-- OTP Input + Button -->
+      <div class="mt-4 flex gap-2 items-center">
+        <input type="text" maxlength="6" formControlName="otp"
+               placeholder="Enter OTP"
+               class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder-slate-400"
+               [disabled]="!otpSent || otpVerified" />
+
+        <button type="button" (click)="otpSent ? verifyOtp() : sendOtp()"
+                [disabled]="otpLoading || otpVerified || f['email'].invalid"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 min-w-[120px]">
+          <span *ngIf="otpLoading">
+            {{ otpSent ? 'Verifying...' : 'Sending...' }}
+          </span>
+          <span *ngIf="!otpLoading">
+            <span *ngIf="otpVerified">Verified</span>
+            <span *ngIf="!otpVerified && !otpSent">Send OTP</span>
+            <span *ngIf="!otpVerified && otpSent">Verify OTP</span>
+          </span>
+        </button>
+      </div>
+
+      <!-- OTP Status Message -->
+      <div class="text-xs text-slate-600 mt-1">
+        <span *ngIf="!otpSent">Click 'Send OTP' to receive verification code</span>
+        <span *ngIf="otpSent && !otpVerified">OTP sent! Check your email and verify</span>
+        <span *ngIf="otpVerified" class="text-green-600">✓ OTP verified successfully</span>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" [disabled]="isLoading || !otpVerified || form.invalid"
+              class="w-full py-3 px-4 bg-[#a225cc] text-white font-semibold rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mt-4">
+        <span *ngIf="isLoading">Creating account...</span>
+        <span *ngIf="!isLoading">Sign Up</span>
+      </button>
+
+      <div class="text-center mt-6">
+        <p class="text-sm text-slate-600">
+          Already have an account?
+          <a routerLink="/auth/login"
+             class="text-[#a225cc] hover:text-purple-700 font-medium transition-colors duration-200">Login here</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

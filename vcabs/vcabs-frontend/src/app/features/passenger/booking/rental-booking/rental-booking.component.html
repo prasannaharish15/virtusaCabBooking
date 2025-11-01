@@ -1,0 +1,204 @@
+<div class="min-h-screen bg-gray-100 py-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">Rental Booking</h1>
+      <p class="text-gray-600">Rent a cab for hourly or daily use</p>
+    </div>
+
+    <!-- Rental Details Form -->
+    <div class="bg-white rounded-2xl shadow-md p-8 mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Rental Details</h2>
+
+      <!-- Rental Type -->
+      <div class="mb-6">
+        <label class="block text-gray-900 font-semibold mb-3">Rental Type</label>
+        <div class="grid grid-cols-2 gap-4">
+          <button 
+            (click)="rentalType = 'hourly'" 
+            [class]="rentalType === 'hourly' 
+              ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg' 
+              : 'bg-white text-purple-600 font-semibold py-4 px-6 rounded-xl border-2 border-purple-600 hover:bg-purple-50'">
+            Hourly Rental
+          </button>
+          <button 
+            (click)="rentalType = 'daily'" 
+            [class]="rentalType === 'daily' 
+              ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg' 
+              : 'bg-white text-purple-600 font-semibold py-4 px-6 rounded-xl border-2 border-purple-600 hover:bg-purple-50'">
+            Daily Rental
+          </button>
+        </div>
+      </div>
+
+      <!-- Pickup and Drop Location -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label class="block text-gray-900 font-semibold mb-3">Pickup Location</label>
+          <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 mb-3" [(ngModel)]="pickupLocation.address" placeholder="Enter pickup address">
+          <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 mb-3" [(ngModel)]="pickupLocation.city" placeholder="City">
+          <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" [(ngModel)]="pickupLocation.pincode" placeholder="Pincode">
+        </div>
+        
+        <div>
+          <label class="block text-gray-900 font-semibold mb-3">Drop Location (Optional)</label>
+          <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 mb-3" [(ngModel)]="dropLocation.address" placeholder="Enter drop address">
+          <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 mb-3" [(ngModel)]="dropLocation.city" placeholder="City">
+          <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" [(ngModel)]="dropLocation.pincode" placeholder="Pincode">
+        </div>
+      </div>
+
+      <!-- Start Date & Time and Duration -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label class="block text-gray-900 font-semibold mb-3">Start Date & Time</label>
+          <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 mb-3" [(ngModel)]="startDate" [min]="today">
+          <input type="time" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" [(ngModel)]="startTime">
+        </div>
+        <div>
+          <label class="block text-gray-900 font-semibold mb-3">{{ rentalType === 'hourly' ? 'Duration (Hours)' : 'Duration (Days)' }}</label>
+          <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" [(ngModel)]="duration">
+            <option *ngIf="rentalType === 'hourly'" value="2">2 Hours</option>
+            <option *ngIf="rentalType === 'hourly'" value="4">4 Hours</option>
+            <option *ngIf="rentalType === 'hourly'" value="6">6 Hours</option>
+            <option *ngIf="rentalType === 'hourly'" value="8">8 Hours</option>
+            <option *ngIf="rentalType === 'hourly'" value="12">12 Hours</option>
+            <option *ngIf="rentalType === 'daily'" value="1">1 Day</option>
+            <option *ngIf="rentalType === 'daily'" value="2">2 Days</option>
+            <option *ngIf="rentalType === 'daily'" value="3">3 Days</option>
+            <option *ngIf="rentalType === 'daily'" value="7">1 Week</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Number of Passengers -->
+      <div class="mb-6">
+        <label class="block text-gray-900 font-semibold mb-3">Number of Passengers</label>
+        <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" [(ngModel)]="passengers">
+          <option value="1">1 Passenger</option>
+          <option value="2">2 Passengers</option>
+          <option value="3">3 Passengers</option>
+          <option value="4">4 Passengers</option>
+          <option value="5">5 Passengers</option>
+          <option value="6">6 Passengers</option>
+          <option value="7">7 Passengers</option>
+          <option value="8">8 Passengers</option>
+        </select>
+      </div>
+
+      <!-- Special Requests -->
+      <div class="mb-6">
+        <label class="block text-gray-900 font-semibold mb-3">Special Requests (Optional)</label>
+        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 h-24 resize-none" [(ngModel)]="specialRequests" placeholder="Any special requirements for rental..."></textarea>
+      </div>
+
+      <!-- Select Cab Button -->
+      <button (click)="proceedToCabSelection()" [disabled]="!isFormValid()" class="w-full py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+        Select Cab
+      </button>
+    </div>
+
+    <!-- Cab Selection -->
+    <div *ngIf="showCabSelection" class="bg-white rounded-2xl shadow-md p-8 mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Select Cab</h2>
+
+      <div class="space-y-4">
+        <div *ngFor="let cab of availableCabs" (click)="selectCab(cab)" 
+             [class]="selectedCab?.id === cab.id ? 'border-purple-600 bg-purple-50' : 'border-gray-300'" 
+             class="border-2 rounded-xl p-6 cursor-pointer transition-all duration-200 hover:border-purple-400 hover:shadow-md">
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="text-xl font-bold text-gray-900">{{ cab.name }}</h3>
+            <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-semibold rounded-full">{{ cab.type }}</span>
+          </div>
+          <div class="text-sm text-gray-600 mb-3 space-y-1">
+            <div *ngIf="rentalType === 'hourly'">Per Hour: ₹{{ cab.basePrice * 0.5 }}</div>
+            <div *ngIf="rentalType === 'daily'">Per Day: ₹{{ cab.basePrice * 8 }}</div>
+          </div>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span *ngFor="let feature of cab.features" class="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{{ feature }}</span>
+          </div>
+          <div class="text-2xl font-bold text-purple-600">Total: ₹{{ calculatePrice(cab) }}</div>
+        </div>
+      </div>
+
+      <button (click)="proceedToConfirmation()" [disabled]="!selectedCab" 
+              class="w-full py-4 mt-6 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+        Confirm Booking
+      </button>
+    </div>
+
+    <!-- Booking Confirmation -->
+    <div *ngIf="showConfirmation" class="bg-white rounded-2xl shadow-md p-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Confirm Your Rental Booking</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4">Booking Summary</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-gray-600 font-medium">Rental Type:</span>
+              <span class="font-bold text-gray-900">{{ rentalType | titlecase }} Rental</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-gray-600 font-medium">Cab Type:</span>
+              <span class="font-bold text-gray-900">{{ selectedCab?.type }}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-gray-600 font-medium">Passengers:</span>
+              <span class="font-bold text-gray-900">{{ passengers }}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-gray-600 font-medium">Start Date:</span>
+              <span class="font-bold text-gray-900">{{ startDate | date:'fullDate' }}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-gray-600 font-medium">Start Time:</span>
+              <span class="font-bold text-gray-900">{{ startTime }}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-gray-100">
+              <span class="text-gray-600 font-medium">Duration:</span>
+              <span class="font-bold text-gray-900">{{ duration }} {{ rentalType === 'hourly' ? 'Hours' : 'Days' }}</span>
+            </div>
+            <div class="flex justify-between py-3 text-xl font-bold border-t-2 border-gray-300 mt-4">
+              <span>Total Amount:</span>
+              <span class="text-purple-600">₹{{ calculatePrice(selectedCab!) }}</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-gray-900 mb-4">Location Details</h3>
+          <div class="space-y-4">
+            <div class="bg-gray-50 rounded-xl p-4">
+              <h4 class="font-bold text-gray-900 mb-2 flex items-center">
+                <svg class="w-5 h-5 text-purple-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                </svg>
+                Pickup Location
+              </h4>
+              <p class="text-gray-900 font-medium">{{ pickupLocation.address }}</p>
+              <p class="text-gray-600">{{ pickupLocation.city }} - {{ pickupLocation.pincode }}</p>
+            </div>
+            <div *ngIf="dropLocation.address" class="bg-gray-50 rounded-xl p-4">
+              <h4 class="font-bold text-gray-900 mb-2 flex items-center">
+                <svg class="w-5 h-5 text-purple-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                </svg>
+                Drop Location
+              </h4>
+              <p class="text-gray-900 font-medium">{{ dropLocation.address }}</p>
+              <p class="text-gray-600">{{ dropLocation.city }} - {{ dropLocation.pincode }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-4 mt-8">
+        <button (click)="confirmBooking()" class="flex-1 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:shadow-lg transition-all duration-200">
+          Confirm & Book
+        </button>
+        <button (click)="cancelBooking()" class="flex-1 py-4 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-300 hover:bg-gray-50 transition-all duration-200">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+

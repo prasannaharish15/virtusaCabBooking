@@ -1,0 +1,20 @@
+<div class="min-h-screen bg-[#E6E6E6] p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-[#A225CC] text-2xl font-semibold">Revenue (Real-time)</h1>
+    <a class="bg-[#A225CC] hover:bg-[#8B1FA8] text-white no-underline px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2" routerLink="/admin/dashboard">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      Back to Dashboard
+    </a>
+  </div>
+
+  <div class="bg-white border border-gray-300 rounded-lg p-4">
+    <div class="flex items-center justify-between mb-2">
+      <div class="text-gray-700">Latest revenue</div>
+      <div class="text-[#A225CC] text-xl font-semibold">{{ latestRevenue | currency:'INR':'symbol':'1.0-0' }}</div>
+    </div>
+    <canvas #chartCanvas class="w-full h-[360px]"></canvas>
+  </div>
+</div>
+
