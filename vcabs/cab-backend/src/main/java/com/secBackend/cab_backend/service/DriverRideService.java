@@ -32,12 +32,16 @@ public class DriverRideService {
 
     //  Start a ride
     @Transactional
-    public ResponseEntity<?> startRide(Long rideId, String email) {
+    public ResponseEntity<?> startRide(Long rideId, String email,int otp) {
         User driver = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
 
         RideRequest ride = rideRequestRepository.findByIdForUpdate(rideId)
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
+
+        if(otp != 1243){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message","invalid otp"));
+        }
 
         if (!ride.getDriver().getId().equals(driver.getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -135,4 +139,6 @@ public class DriverRideService {
 
         return ResponseEntity.ok(Map.of("ride", currRide.get()));
     }
+
+
 }

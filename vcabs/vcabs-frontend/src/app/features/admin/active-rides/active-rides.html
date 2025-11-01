@@ -18,16 +18,26 @@
     </a>
   </div>
 
-  <div *ngIf="loading" class="text-center py-10 text-gray-500">
-    Loading active rides...
-  </div>
+  <div class="bg-white border border-gray-300 rounded-lg overflow-auto">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#A225CC]"></div>
+      <p class="mt-2 text-gray-600">Loading active rides...</p>
+    </div>
 
-  <div *ngIf="error" class="text-center text-red-500 py-4">
-    {{ error }}
-  </div>
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="text-center py-12">
+      <p class="text-red-600">{{ error }}</p>
+      <button 
+        (click)="fetchActiveRides()" 
+        class="mt-4 bg-[#A225CC] hover:bg-[#8B1FA8] text-white px-4 py-2 rounded-lg transition-colors"
+      >
+        Retry
+      </button>
+    </div>
 
-  <div *ngIf="!loading && !error" class="bg-white border border-gray-300 rounded-lg overflow-auto">
-    <table class="w-full border-collapse">
+    <!-- Data Table -->
+    <table *ngIf="!loading && !error && rides.length > 0" class="w-full border-collapse">
       <thead>
         <tr class="bg-[#F8F0FB] text-gray-700">
           <th class="py-3 px-4 text-left">Customer ID</th>
@@ -39,17 +49,25 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let ride of rides" class="border-t border-gray-200">
+        <tr *ngFor="let ride of rides" class="border-t border-gray-200 hover:bg-gray-50">
           <td class="py-3 px-4">{{ ride.customerId }}</td>
           <td class="py-3 px-4">{{ ride.customerName }}</td>
           <td class="py-3 px-4">{{ ride.driverId }}</td>
           <td class="py-3 px-4">{{ ride.pickupLocation }}</td>
           <td class="py-3 px-4">{{ ride.dropLocation }}</td>
           <td class="py-3 px-4">
-            {{ ride.amount | currency: 'INR' : 'symbol' : '1.0-0' }}
+            <span class="font-semibold text-blue-600">{{ ride.amount | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && rides.length === 0" class="text-center py-12 text-gray-500">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+      </svg>
+      <p class="mt-2">No active rides found.</p>
+    </div>
   </div>
 </div>

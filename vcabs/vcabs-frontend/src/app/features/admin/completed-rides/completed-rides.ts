@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, CurrencyPipe, NgFor } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 interface CompletedRideRow {
   customerId: string;
@@ -15,7 +15,7 @@ interface CompletedRideRow {
 @Component({
   selector: 'app-completed-rides',
   standalone: true,
-  imports: [CommonModule, NgFor, CurrencyPipe, RouterLink, HttpClientModule],
+  imports: [CommonModule, NgFor, CurrencyPipe, RouterLink],
   templateUrl: './completed-rides.html',
   styleUrl: './completed-rides.css'
 })
@@ -25,22 +25,43 @@ export class CompletedRides implements OnInit {
   isLoading = true;
   errorMessage = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadCompletedRides();
   }
 
   loadCompletedRides() {
-    this.http.get<CompletedRideRow[]>(this.apiUrl).subscribe({
+    this.http.get<any>(this.apiUrl).subscribe({
       next: (data) => {
-        this.rides = data;
+        console.log('Completed rides data:', data);
+        // Check if data is an array (has rides) or an object (no rides message)
+        if (Array.isArray(data)) {
+          // Backend returns flat DTO structure
+          this.rides = data.map((ride) => ({
+            customerId: `CUST-${ride.customerId}`,
+            customerName: ride.customerName,
+            driverId: `DRV-${ride.driverId}`,
+            pickupLocation: ride.pickupLocation,
+            dropLocation: ride.dropLocation,
+            amount: ride.amount
+          }));
+        } else {
+          // Backend returned a message object (no rides found)
+          this.rides = [];
+          console.log('No completed rides:', data.message);
+        }
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error fetching completed rides:', error);
         this.errorMessage = 'Failed to load completed rides. Please try again later.';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }

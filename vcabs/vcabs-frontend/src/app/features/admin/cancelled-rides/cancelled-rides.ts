@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, CurrencyPipe, NgFor } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, NgFor } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 interface CancelledRideRow {
   customerId: string;
@@ -10,13 +10,13 @@ interface CancelledRideRow {
   pickupLocation: string;
   dropLocation: string;
   cancellationReason: string;
-  refundAmount: number;
+  refundAmount: string;
 }
 
 @Component({
   selector: 'app-cancelled-rides',
   standalone: true,
-  imports: [CommonModule, NgFor, CurrencyPipe, RouterModule, HttpClientModule],
+  imports: [CommonModule, NgFor, RouterModule],
   templateUrl: './cancelled-rides.html',
   styleUrl: './cancelled-rides.css'
 })
@@ -25,22 +25,43 @@ export class CancelledRides implements OnInit {
   loading = true;
   error: string | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.fetchCancelledRides();
   }
 
   fetchCancelledRides() {
-    this.http.get<CancelledRideRow[]>('http://localhost:8080/api/admin/rides/cancelled').subscribe({
+    this.http.get<any>('http://localhost:8080/api/admin/rides/cancelled').subscribe({
       next: (data) => {
-        this.rides = data;
+        // Check if data is an array (has rides) or an object (no rides message)
+        if (Array.isArray(data)) {
+          // Backend returns flat DTO structure
+          this.rides = data.map((ride) => ({
+            customerId: `CUST-${ride.customerId}`,
+            customerName: ride.customerName,
+            driverId: `DRV-${ride.driverId}`,
+            pickupLocation: ride.pickupLocation,
+            dropLocation: ride.dropLocation,
+            cancellationReason: ride.reason || 'N/A',
+            refundAmount: ride.refund || 'Pending'
+          }));
+        } else {
+          // Backend returned a message object (no rides found)
+          this.rides = [];
+          console.log('No cancelled rides:', data.message);
+        }
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error fetching cancelled rides', err);
         this.error = 'Failed to load cancelled rides.';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }

@@ -1,6 +1,8 @@
 package com.secBackend.cab_backend.service;
 
 import com.secBackend.cab_backend.dataTransferObject.DriverDetailDto;
+import com.secBackend.cab_backend.dataTransferObject.DriverHomePageDto;
+import com.secBackend.cab_backend.dataTransferObject.RegisterUserRequest;
 import com.secBackend.cab_backend.model.DriverProfile;
 import com.secBackend.cab_backend.model.RideRequest;
 import com.secBackend.cab_backend.model.RideRequest.RideStatus;
@@ -12,10 +14,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DriverService {
@@ -50,6 +57,7 @@ public class DriverService {
     }
 
     //  Get profile data
+
     public ResponseEntity<?> getProfileData(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -106,4 +114,70 @@ public class DriverService {
 
         return ResponseEntity.ok("Ride completed successfully!");
     }
+
+    public ResponseEntity<?> getDriverHomePageData(String email) {
+        User currUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        DriverProfile driverProfile = currUser.getDriverProfile();
+        DriverHomePageDto driverHomePageDto = new DriverHomePageDto();
+
+        driverHomePageDto.setDriverId(currUser.getId());
+        driverHomePageDto.setDriverName(currUser.getUsername());
+
+        List<RideRequest> allRides = rideRequestRepository.findAllByDriver_Id(currUser.getId());
+
+        // Filter today's rides
+        LocalDate today = LocalDate.now();
+        List<RideRequest> todaysRides = allRides.stream()
+                .filter(ride -> ride.getCompletedAt()!=null && ride.getCompletedAt().toLocalDate().isEqual(today))
+                .toList();
+
+        // Calculate today's ride count
+        driverHomePageDto.setTodayRideNo(todaysRides.size());
+
+        // Calculate today's total earnings
+        double todayEarnings = todaysRides.stream()
+                .mapToDouble(RideRequest::getFare)
+                .sum();
+        driverHomePageDto.setTodayEarnings((int) todayEarnings);
+
+        return ResponseEntity.ok(driverHomePageDto);
+    }
+
+    @Transactional
+    public ResponseEntity<?> updateDriverProfile(RegisterUserRequest request, String currentEmail) {
+
+        // Get current user
+        User currUser = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Check for email uniqueness if updated
+        if (!currUser.getEmail().equals(request.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email already in use!"));
+        }
+
+        // Update basic user fields
+        currUser.setUsername(request.getUserName());
+        currUser.setEmail(request.getEmail());
+        currUser.setPhoneNumber(request.getPhoneNumber());
+        userRepository.save(currUser);
+
+        // Get and update driver-specific fields
+        DriverProfile driverProfile = currUser.getDriverProfile();
+        if (driverProfile != null) {
+            var driverDetails = request.getDriverDetails();
+            driverProfile.setLicenceExpiryDate(driverDetails.getLicenceExpiryDate());
+            driverProfile.setMake(driverDetails.getMake());
+            driverProfile.setModel(driverDetails.getModel());
+            driverProfile.setColor(driverDetails.getColor());
+            driverProfile.setLicenseNumber(driverDetails.getLicenseNumber());
+            driverProfile.setVehicleNumber(driverDetails.getVehicleNumber());
+            driverProfileRepository.save(driverProfile);
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Driver Profile updated successfully!"));
+    }
+
+
 }

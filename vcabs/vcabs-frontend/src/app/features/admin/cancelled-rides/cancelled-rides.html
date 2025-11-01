@@ -12,11 +12,26 @@
     </a>
   </div>
 
-  <div *ngIf="loading" class="text-center py-8 text-gray-600">Loading cancelled rides...</div>
-  <div *ngIf="error" class="text-center py-8 text-red-600">{{ error }}</div>
+  <div class="bg-white border border-gray-300 rounded-lg overflow-auto">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#A225CC]"></div>
+      <p class="mt-2 text-gray-600">Loading cancelled rides...</p>
+    </div>
 
-  <div *ngIf="!loading && !error" class="bg-white border border-gray-300 rounded-lg overflow-auto">
-    <table class="w-full border-collapse">
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="text-center py-12">
+      <p class="text-red-600">{{ error }}</p>
+      <button 
+        (click)="fetchCancelledRides()" 
+        class="mt-4 bg-[#A225CC] hover:bg-[#8B1FA8] text-white px-4 py-2 rounded-lg transition-colors"
+      >
+        Retry
+      </button>
+    </div>
+
+    <!-- Data Table -->
+    <table *ngIf="!loading && !error && rides.length > 0" class="w-full border-collapse">
       <thead>
         <tr class="bg-[#F8F0FB] text-gray-700">
           <th class="py-3 px-4 text-left">Customer ID</th>
@@ -29,16 +44,28 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let ride of rides" class="border-t border-gray-200 hover:bg-gray-50 transition">
+        <tr *ngFor="let ride of rides" class="border-t border-gray-200 hover:bg-gray-50">
           <td class="py-3 px-4">{{ ride.customerId }}</td>
           <td class="py-3 px-4">{{ ride.customerName }}</td>
           <td class="py-3 px-4">{{ ride.driverId }}</td>
           <td class="py-3 px-4">{{ ride.pickupLocation }}</td>
           <td class="py-3 px-4">{{ ride.dropLocation }}</td>
-          <td class="py-3 px-4">{{ ride.cancellationReason }}</td>
-          <td class="py-3 px-4">{{ ride.refundAmount | currency:'INR':'symbol':'1.0-0' }}</td>
+          <td class="py-3 px-4">
+            <span class="text-sm text-gray-600">{{ ride.cancellationReason }}</span>
+          </td>
+          <td class="py-3 px-4">
+            <span class="font-semibold text-red-600">{{ ride.refundAmount }}</span>
+          </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && rides.length === 0" class="text-center py-12 text-gray-500">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <p class="mt-2">No cancelled rides found.</p>
+    </div>
   </div>
 </div>

@@ -19,7 +19,25 @@
   </div>
 
   <div class="bg-white border border-gray-300 rounded-lg overflow-auto">
-    <table class="w-full border-collapse">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#A225CC]"></div>
+      <p class="mt-2 text-gray-600">Loading customers...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="text-center py-12">
+      <p class="text-red-600">{{ errorMessage }}</p>
+      <button 
+        (click)="loadCustomers()" 
+        class="mt-4 bg-[#A225CC] hover:bg-[#8B1FA8] text-white px-4 py-2 rounded-lg transition-colors"
+      >
+        Retry
+      </button>
+    </div>
+
+    <!-- Data Table -->
+    <table *ngIf="!isLoading && !errorMessage" class="w-full border-collapse">
       <thead>
         <tr class="bg-[#F8F0FB] text-gray-700">
           <th class="py-3 px-4 text-left">Customer ID</th>
@@ -30,18 +48,24 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of customers" class="border-t border-gray-200">
+        <tr *ngFor="let c of customers" class="border-t border-gray-200 hover:bg-gray-50">
           <td class="py-3 px-4">CUST-{{ c.id }}</td>
           <td class="py-3 px-4">{{ c.username }}</td>
           <td class="py-3 px-4">{{ c.email }}</td>
           <td class="py-3 px-4">{{ c.phoneNumber }}</td>
-          <td class="py-3 px-4">{{ c.role }}</td>
+          <td class="py-3 px-4">
+            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-sm">{{ c.role }}</span>
+          </td>
         </tr>
       </tbody>
     </table>
 
-    <div *ngIf="customers.length === 0" class="text-center py-6 text-gray-500">
-      No customers found.
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && customers.length === 0" class="text-center py-12 text-gray-500">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+      </svg>
+      <p class="mt-2">No customers found.</p>
     </div>
   </div>
 </div>
