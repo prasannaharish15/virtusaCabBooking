@@ -1,13 +1,23 @@
 <div class="min-h-screen bg-[#E6E6E6] p-6">
   <div class="flex items-center justify-between mb-4">
     <h1 class="text-[#A225CC] text-2xl font-semibold">Customers</h1>
-    <a class="bg-[#A225CC] hover:bg-[#8B1FA8] text-white no-underline px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2" routerLink="/admin/dashboard">
+
+    <a
+      class="bg-[#A225CC] hover:bg-[#8B1FA8] text-white no-underline px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+      routerLink="/admin/dashboard"
+    >
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
       </svg>
       Back to Dashboard
     </a>
   </div>
+
   <div class="bg-white border border-gray-300 rounded-lg overflow-auto">
     <table class="w-full border-collapse">
       <thead>
@@ -15,20 +25,23 @@
           <th class="py-3 px-4 text-left">Customer ID</th>
           <th class="py-3 px-4 text-left">Customer Name</th>
           <th class="py-3 px-4 text-left">Email</th>
-          <th class="py-3 px-4 text-left">Password</th>
           <th class="py-3 px-4 text-left">Contact Number</th>
+          <th class="py-3 px-4 text-left">Role</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let c of customers" class="border-t border-gray-200">
-          <td class="py-3 px-4">{{ c.customerId }}</td>
-          <td class="py-3 px-4">{{ c.customerName }}</td>
+          <td class="py-3 px-4">CUST-{{ c.id }}</td>
+          <td class="py-3 px-4">{{ c.username }}</td>
           <td class="py-3 px-4">{{ c.email }}</td>
-          <td class="py-3 px-4">{{ c.password }}</td>
-          <td class="py-3 px-4">{{ c.contactNumber }}</td>
+          <td class="py-3 px-4">{{ c.phoneNumber }}</td>
+          <td class="py-3 px-4">{{ c.role }}</td>
         </tr>
       </tbody>
     </table>
+
+    <div *ngIf="customers.length === 0" class="text-center py-6 text-gray-500">
+      No customers found.
+    </div>
   </div>
 </div>
-

@@ -1,15 +1,32 @@
 <div class="min-h-screen bg-[#E6E6E6] p-6">
   <div class="flex items-center justify-between mb-4">
     <h1 class="text-[#A225CC] text-2xl font-semibold">Active Rides</h1>
-    
-    <a class="bg-[#A225CC] hover:bg-[#8B1FA8] text-white no-underline px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2" routerLink="/admin/dashboard">
+
+    <a
+      class="bg-[#A225CC] hover:bg-[#8B1FA8] text-white no-underline px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+      routerLink="/admin/dashboard"
+    >
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
       </svg>
       Back to Dashboard
     </a>
   </div>
-  <div class="bg-white border border-gray-300 rounded-lg overflow-auto">
+
+  <div *ngIf="loading" class="text-center py-10 text-gray-500">
+    Loading active rides...
+  </div>
+
+  <div *ngIf="error" class="text-center text-red-500 py-4">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="bg-white border border-gray-300 rounded-lg overflow-auto">
     <table class="w-full border-collapse">
       <thead>
         <tr class="bg-[#F8F0FB] text-gray-700">
@@ -28,10 +45,11 @@
           <td class="py-3 px-4">{{ ride.driverId }}</td>
           <td class="py-3 px-4">{{ ride.pickupLocation }}</td>
           <td class="py-3 px-4">{{ ride.dropLocation }}</td>
-          <td class="py-3 px-4">{{ ride.amount | currency:'INR':'symbol':'1.0-0' }}</td>
+          <td class="py-3 px-4">
+            {{ ride.amount | currency: 'INR' : 'symbol' : '1.0-0' }}
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
-
