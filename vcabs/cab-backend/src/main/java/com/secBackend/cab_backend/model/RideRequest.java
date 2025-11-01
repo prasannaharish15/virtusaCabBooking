@@ -58,6 +58,7 @@ public class RideRequest {
         ACCEPTED,
         IN_PROGRESS,
         COMPLETED,
-        CANCELLED
+        CANCELLED,
+        REJECTED
     }
 }

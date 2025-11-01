@@ -1,11 +1,9 @@
 package com.secBackend.cab_backend.dataTransferObject;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class DriverDetailDto {
     private Long id;
@@ -20,7 +18,14 @@ public class DriverDetailDto {
     private String color;
     private String licenceExpiryDate;
 
-    public DriverDetailDto(Long id, Long id1, String username, String email, String phoneNumber, String licenseNumber, String vehicleNumber) {
-
+    // Constructor for AdminService - returns only basic driver info
+    public DriverDetailDto(Long id, Long userId, String userName, String email, String phoneNumber, String licenseNumber, String vehicleNumber) {
+        this.id = id;
+        this.userId = userId;
+        this.userName = userName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.licenseNumber = licenseNumber;
+        this.vehicleNumber = vehicleNumber;
     }
 }

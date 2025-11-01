@@ -3,6 +3,7 @@ package com.secBackend.cab_backend.repository;
 import com.secBackend.cab_backend.enumerations.RideType;
 import com.secBackend.cab_backend.model.RideRequest;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -14,24 +15,26 @@ import java.util.Optional;
 
 public interface RideRequestRepository extends JpaRepository<RideRequest, Long> {
 
-    // Lock the row for update to prevent concurrent modifications
+    //  Lock the row for update (used in startRide/completeRide)
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r FROM RideRequest r WHERE r.id = :rideId")
     Optional<RideRequest> findByIdForUpdate(@Param("rideId") Long rideId);
 
-    // Find all rides by status
+    //  Find rides by driver and status (used for accepted ride lookup)
+    Optional<RideRequest> findByDriver_IdAndStatus(Long driverId, RideRequest.RideStatus status);
+
+    //  Fetch rides by type, status, and schedule
+    List<RideRequest> findAllByRideTypeAndStatusAndScheduledTimeAfter(
+            RideType rideType,
+            RideRequest.RideStatus status,
+            LocalDateTime time
+    );
+
+    //  Fetch rides by status with user and driver loaded
+    @EntityGraph(attributePaths = {"user", "driver"})
     List<RideRequest> findAllByStatus(RideRequest.RideStatus status);
 
-    // Find all rides for a specific customer
     List<RideRequest> findAllByUser_Id(Long customerId);
-
-    // Find all rides for a specific driver
     List<RideRequest> findAllByDriver_Id(Long driverId);
-
-    RideRequest findByDriver_IdAndStatus(Long driverId, RideRequest.RideStatus status);
-
-    Optional<RideRequest> findById(Long id);
-
-
-    List<RideRequest> findAllByRideTypeAndStatusAndScheduledTimeAfter(RideType rideType, RideRequest.RideStatus rideStatus, LocalDateTime now);
 }
+

@@ -29,4 +29,15 @@ public class DriverController {
     public ResponseEntity<?> getProfileData(Authentication authentication) {
         return driverService.getProfileData(authentication.getName());
     }
+
+    @PostMapping("/{driverId}/start")
+    public ResponseEntity<?> startRide(@PathVariable Long driverId) {
+        return driverService.startRide(driverId);
+    }
+
+    @PostMapping("/{driverId}/end")
+    public ResponseEntity<?> endRide(@PathVariable Long driverId) {
+        return driverService.endRide(driverId);
+    }
+
 }

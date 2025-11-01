@@ -26,4 +26,23 @@ public class AdminController {
     public ResponseEntity<?> listAllDriver(){
         return adminService.getAllDriver();
     }
+
+    //  Get all active rides
+    @GetMapping("/rides/active")
+    public ResponseEntity<?> getActiveRides() {
+        return adminService.getRidesByStatus("ACTIVE");
+    }
+
+    //  Get all completed rides
+    @GetMapping("/rides/completed")
+    public ResponseEntity<?> getCompletedRides() {
+        return adminService.getRidesByStatus("COMPLETED");
+    }
+
+    //  Get all cancelled rides
+    @GetMapping("/rides/cancelled")
+    public ResponseEntity<?> getCancelledRides() {
+        return adminService.getRidesByStatus("CANCELLED");
+    }
+
 }

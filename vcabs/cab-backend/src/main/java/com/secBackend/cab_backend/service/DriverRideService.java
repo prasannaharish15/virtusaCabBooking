@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,10 +28,9 @@ public class DriverRideService {
                              UserRepository userRepository) {
         this.rideRequestRepository = rideRequestRepository;
         this.userRepository = userRepository;
-
     }
 
-    // Start a ride
+    //  Start a ride
     @Transactional
     public ResponseEntity<?> startRide(Long rideId, String email) {
         User driver = userRepository.findByEmail(email)
@@ -40,21 +40,23 @@ public class DriverRideService {
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
 
         if (!ride.getDriver().getId().equals(driver.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Not your ride"));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Not your ride"));
         }
 
         if (ride.getStatus() != RideRequest.RideStatus.ACCEPTED) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Ride must be ACCEPTED to start"));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Ride must be ACCEPTED to start"));
         }
 
         ride.setStatus(RideRequest.RideStatus.IN_PROGRESS);
         ride.setStartedAt(LocalDateTime.now());
         rideRequestRepository.save(ride);
 
-        return ResponseEntity.ok(Map.of("message", "Ride started"));
+        return ResponseEntity.ok(Map.of("message", "Ride started successfully"));
     }
 
-    // Complete a ride
+    //  Complete a ride
     @Transactional
     public ResponseEntity<?> completeRide(Long rideId, String email) {
         User driver = userRepository.findByEmail(email)
@@ -64,11 +66,13 @@ public class DriverRideService {
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
 
         if (!ride.getDriver().getId().equals(driver.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Not your ride"));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Not your ride"));
         }
 
         if (ride.getStatus() != RideRequest.RideStatus.IN_PROGRESS) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Ride must be IN_PROGRESS to complete"));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Ride must be IN_PROGRESS to complete"));
         }
 
         ride.setStatus(RideRequest.RideStatus.COMPLETED);
@@ -79,14 +83,13 @@ public class DriverRideService {
         driver.getDriverProfile().setAvailable(true);
         userRepository.save(driver);
 
-        return ResponseEntity.ok(Map.of("message", "Ride completed"));
+        return ResponseEntity.ok(Map.of("message", "Ride completed successfully"));
     }
 
-
+    //  Fetch pending rides by type
     public ResponseEntity<?> getPendingRides(String type, String driverName) {
         List<RideRequest> rides;
 
-        // Filter based on a ride type
         if ("ADVANCE".equalsIgnoreCase(type)) {
             rides = rideRequestRepository.findAllByRideTypeAndStatusAndScheduledTimeAfter(
                     RideType.ADVANCE, RideRequest.RideStatus.REQUESTED, LocalDateTime.now());
@@ -97,7 +100,7 @@ public class DriverRideService {
             rides = rideRequestRepository.findAllByRideTypeAndStatusAndScheduledTimeAfter(
                     RideType.INTERCITY, RideRequest.RideStatus.REQUESTED, LocalDateTime.now());
         } else {
-            return ResponseEntity.badRequest().body("Invalid ride type: " + type);
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid ride type: " + type));
         }
 
         // Convert Entity → DTO
@@ -117,10 +120,19 @@ public class DriverRideService {
         return ResponseEntity.ok(responseDtoList);
     }
 
+    //  Fetch accepted ride for driver
     public ResponseEntity<?> getAcceptedDriverRide(String email) {
         User driver = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
-        RideRequest currRide=rideRequestRepository.findByDriver_IdAndStatus(driver.getId(), RideRequest.RideStatus.ACCEPTED);
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", currRide));
+
+        Optional<RideRequest> currRide = rideRequestRepository.findByDriver_IdAndStatus(
+                driver.getId(), RideRequest.RideStatus.ACCEPTED);
+
+        if (currRide.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "No accepted ride found"));
+        }
+
+        return ResponseEntity.ok(Map.of("ride", currRide.get()));
     }
 }
