@@ -148,7 +148,7 @@ public class CustomerService {
             if (ride.getDriver() != null) {
                 response.setDriverId(ride.getDriver().getId());
                 response.setDriverName(ride.getDriver().getUsername());
-                response.setPhoneNumber(ride.getDriver().getPhoneNumber());
+                response.setDriverPhoneNumber(ride.getDriver().getPhoneNumber());
                 
                 // Get driver's current location
                 DriverLocation driverLocation = cabLocationService.getLocation(ride.getDriver().getId());
@@ -160,7 +160,7 @@ public class CustomerService {
             } else {
                 response.setDriverId(null);
                 response.setDriverName("Driver not assigned yet");
-                response.setPhoneNumber("N/A");
+                response.setDriverPhoneNumber("N/A");
             }
 
             response.setPickUpLocation(ride.getPickUpLocation());
@@ -223,7 +223,7 @@ public class CustomerService {
         if (latestActiveRide.getDriver() != null) {
             response.setDriverId(latestActiveRide.getDriver().getId());
             response.setDriverName(latestActiveRide.getDriver().getUsername());
-            response.setPhoneNumber(latestActiveRide.getDriver().getPhoneNumber());
+            response.setDriverPhoneNumber(latestActiveRide.getDriver().getPhoneNumber());
             
             // Get driver's current location
             DriverLocation driverLocation = cabLocationService.getLocation(latestActiveRide.getDriver().getId());
@@ -235,7 +235,7 @@ public class CustomerService {
         } else {
             response.setDriverId(null);
             response.setDriverName("Driver not assigned yet");
-            response.setPhoneNumber("N/A");
+            response.setDriverPhoneNumber("N/A");
         }
 
         response.setPickUpLocation(latestActiveRide.getPickUpLocation());

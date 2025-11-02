@@ -36,7 +36,7 @@ public class DriverRideService {
         User driver = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
 
-        RideRequest ride = rideRequestRepository.findByIdForUpdate(rideId)
+        RideRequest ride = rideRequestRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Ride not found"));
 
         if(otp != 1243){
@@ -91,54 +91,98 @@ public class DriverRideService {
     }
 
     //  Fetch pending rides by type
-    public ResponseEntity<?> getPendingRides(String type, String driverName) {
-        List<RideRequest> rides;
+//    public ResponseEntity<?> getPendingRides(String type, String driverName) {
+//        List<RideRequest> rides;
+//
+//        if ("ADVANCE".equalsIgnoreCase(type)) {
+//            rides = rideRequestRepository.findAllByRideTypeAndStatusAndScheduledTimeAfter(
+//                    RideType.ADVANCE, RideRequest.RideStatus.REQUESTED, LocalDateTime.now());
+//        } else if ("RENTAL".equalsIgnoreCase(type)) {
+//            rides = rideRequestRepository.findAllByRideTypeAndStatusAndScheduledTimeAfter(
+//                    RideType.RENTAL, RideRequest.RideStatus.REQUESTED, LocalDateTime.now());
+//        } else if ("INTERCITY".equalsIgnoreCase(type)) {
+//            rides = rideRequestRepository.findAllByRideTypeAndStatusAndScheduledTimeAfter(
+//                    RideType.INTERCITY, RideRequest.RideStatus.REQUESTED, LocalDateTime.now());
+//        } else {
+//            return ResponseEntity.badRequest().body(Map.of("message", "Invalid ride type: " + type));
+//        }
+//
+//        // Convert Entity → DTO
+//        List<RideResponseDto> responseDtoList = rides.stream().map(ride -> {
+//            RideResponseDto dto = new RideResponseDto();
+//            dto.setRideId(ride.getId());
+//            dto.setDistance(ride.getDistanceKm());
+//            dto.setDurationMinutes(ride.getDurationMinutes());
+//            dto.setFare(ride.getFare());
+//            dto.setStatus(String.valueOf(ride.getStatus()));
+//            dto.setPickUpLocation(ride.getPickUpLocation());
+//            dto.setDestinationLocation(ride.getDestinationLocation());
+//            dto.setScheduledDateTime(ride.getScheduledTime());
+//            return dto;
+//        }).collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(responseDtoList);
+//    }
 
-        if ("ADVANCE".equalsIgnoreCase(type)) {
-            rides = rideRequestRepository.findAllByRideTypeAndStatusAndScheduledTimeAfter(
-                    RideType.ADVANCE, RideRequest.RideStatus.REQUESTED, LocalDateTime.now());
-        } else if ("RENTAL".equalsIgnoreCase(type)) {
-            rides = rideRequestRepository.findAllByRideTypeAndStatusAndScheduledTimeAfter(
-                    RideType.RENTAL, RideRequest.RideStatus.REQUESTED, LocalDateTime.now());
-        } else if ("INTERCITY".equalsIgnoreCase(type)) {
-            rides = rideRequestRepository.findAllByRideTypeAndStatusAndScheduledTimeAfter(
-                    RideType.INTERCITY, RideRequest.RideStatus.REQUESTED, LocalDateTime.now());
-        } else {
-            return ResponseEntity.badRequest().body(Map.of("message", "Invalid ride type: " + type));
-        }
-
-        // Convert Entity → DTO
-        List<RideResponseDto> responseDtoList = rides.stream().map(ride -> {
-            RideResponseDto dto = new RideResponseDto();
-            dto.setRideId(ride.getId());
-            dto.setDistance(ride.getDistanceKm());
-            dto.setDurationMinutes(ride.getDurationMinutes());
-            dto.setFare(ride.getFare());
-            dto.setStatus(String.valueOf(ride.getStatus()));
-            dto.setPickUpLocation(ride.getPickUpLocation());
-            dto.setDestinationLocation(ride.getDestinationLocation());
-            dto.setScheduledDateTime(ride.getScheduledTime());
-            return dto;
-        }).collect(Collectors.toList());
-
-        return ResponseEntity.ok(responseDtoList);
-    }
-
-    //  Fetch accepted ride for driver
+    //  Fetch accepted or in-progress ride for driver
     public ResponseEntity<?> getAcceptedDriverRide(String email) {
+        // 1️⃣ Fetch driver from DB
         User driver = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
 
+        // 2️⃣ Find accepted ride for this driver
         Optional<RideRequest> currRide = rideRequestRepository.findByDriver_IdAndStatus(
                 driver.getId(), RideRequest.RideStatus.ACCEPTED);
 
+        // 3️⃣ If no accepted ride, check for in-progress ride
         if (currRide.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No accepted ride found"));
+            currRide = rideRequestRepository.findByDriver_IdAndStatus(
+                    driver.getId(), RideRequest.RideStatus.IN_PROGRESS);
         }
 
-        return ResponseEntity.ok(Map.of("ride", currRide.get()));
+        if (currRide.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "No active ride found"));
+        }
+
+        RideRequest ride = currRide.get();
+
+        // 3️⃣ Build DTO response
+        RideResponseDto dto = new RideResponseDto();
+        dto.setRideId(ride.getId());
+
+        // Driver info
+        dto.setDriverId(driver.getId());
+        dto.setDriverName(driver.getUsername());
+        dto.setDriverPhoneNumber(driver.getPhoneNumber());
+
+        // Customer info
+        if (ride.getUser() != null) {
+            dto.setCustomerId(ride.getUser().getId());
+            dto.setCustomerName(ride.getUser().getUsername());
+            dto.setCustomerPhoneNumber(ride.getUser().getPhoneNumber());
+        }
+
+        // Ride details
+        dto.setPickUpLocation(ride.getPickUpLocation());
+        dto.setDestinationLocation(ride.getDestinationLocation());
+        dto.setScheduledDateTime(ride.getScheduledTime());
+        dto.setDistance(ride.getDistanceKm());
+        dto.setDurationMinutes(ride.getDurationMinutes());
+        dto.setFare(ride.getFare());
+        dto.setStatus(ride.getStatus().name());
+
+        // Pickup & drop coordinates
+        dto.setPickUpLatitude(ride.getPickUpLatitude());
+        dto.setPickUpLongitude(ride.getPickUpLongitude());
+        dto.setDropOffLatitude(ride.getDestinationLatitude());
+        dto.setDropOffLongitude(ride.getDestinationLongitude());
+
+
+        // 4️⃣ Return JSON response
+        return ResponseEntity.ok(Map.of("ride", dto));
     }
+
 
 
 }

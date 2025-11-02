@@ -1,38 +1,148 @@
-<div class="max-w-3xl mx-auto p-6 space-y-6">
-  <h1 class="text-2xl font-bold text-purple-700">Ride Tracking</h1>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-3">
+          <button routerLink="/driver/dashboard" class="text-gray-600 hover:text-gray-900 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <h1 class="text-2xl font-bold text-gray-900">🗺️ Ride Tracking</h1>
+        </div>
+        <div *ngIf="ride" class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl px-4 py-2 text-white shadow-lg">
+          <p class="text-xs font-medium opacity-90">Fare</p>
+          <p class="text-xl font-bold">₹{{ ride.fare }}</p>
+        </div>
+      </div>
+    </div>
+  </header>
 
-  <div *ngIf="!ride" class="p-6 bg-white border border-purple-200 rounded text-center text-gray-600">
-    No ride found. Go back to Ride Requests.
-  </div>
-
-  <div *ngIf="ride" class="bg-white border border-purple-200 rounded p-4 space-y-4">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-      <div><strong>Passenger:</strong> {{ ride.passengerName }}</div>
-      <div><strong>From:</strong> {{ ride.pickupLocation }}</div>
-      <div><strong>To:</strong> {{ ride.dropLocation }}</div>
-      <div class="md:col-span-3"><strong>Fare:</strong> ₹{{ ride.fare }}</div>
-      <div class="md:col-span-3" *ngIf="ride.startedAt"><strong>Started:</strong> {{ ride.startedAt | date:'short' }}</div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="bg-white rounded-2xl shadow-md p-16 text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+      <p class="text-gray-500 text-lg">Loading ride details...</p>
     </div>
 
-    <div *ngIf="!ride.startedAt" class="flex flex-col md:flex-row md:items-end gap-3">
-      <div class="flex-1">
-        <label class="text-sm text-gray-600">Enter OTP to Start</label>
-        <input maxlength="6" [(ngModel)]="otp" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 tracking-widest" placeholder="_ _ _ _" />
-      </div>
-      <button (click)="startRide()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded">Start Ride</button>
+    <!-- No Ride Found -->
+    <div *ngIf="!isLoading && !ride" class="bg-white rounded-2xl shadow-md p-16 text-center">
+      <div class="text-6xl mb-4">🚗</div>
+      <p class="text-xl font-semibold text-gray-700 mb-2">No ride found</p>
+      <p class="text-gray-500 mb-6">Go back to Ride Requests to accept a ride</p>
+      <button routerLink="/driver/ride-requests" class="px-6 py-3 bg-gradient-to-br from-purple-500 to-purple-600 hover:shadow-xl text-white rounded-xl font-semibold transition-all duration-200 hover:scale-105">
+        View Ride Requests
+      </button>
     </div>
 
-    <div *ngIf="ride.startedAt" class="flex flex-col md:flex-row md:items-end gap-3">
-      <div class="flex-1">
-        <label class="text-sm text-gray-600">Payment Mode</label>
-        <select [(ngModel)]="paymentMode" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-          <option value="Cash">Cash</option>
-          <option value="UPI">UPI</option>
-          <option value="Card">Card</option>
-          <option value="Wallet">Wallet</option>
-        </select>
+    <!-- Map Container - Only render when ride is loaded -->
+    <div *ngIf="!isLoading && ride" class="space-y-6">
+      <!-- Map Container -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden map-wrapper">
+        <div id="map"></div>
       </div>
-      <button (click)="endRide()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">End Ride</button>
+
+      <!-- Ride Status Card -->
+      <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-8 text-white">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold">🚦 {{ ride.status === 'IN_PROGRESS' ? 'Ride In Progress' : 'Ready to Start' }}</h2>
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2">
+            <p class="text-xs opacity-90">Status</p>
+            <p class="text-sm font-bold">{{ ride.status }}</p>
+          </div>
+        </div>
+        
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm opacity-90 mb-1">Passenger</p>
+              <p class="text-xl font-bold">{{ ride.customerName }}</p>
+              <p class="text-sm opacity-75">{{ ride.customerPhoneNumber }}</p>
+            </div>
+            <div>
+              <p class="text-sm opacity-90 mb-1">Fare Amount</p>
+              <p class="text-xl font-bold">₹{{ ride.fare }}</p>
+            </div>
+            <div>
+              <p class="text-sm opacity-90 mb-1">📍 Pickup Location</p>
+              <p class="text-lg font-semibold">{{ ride.pickUpLocation }}</p>
+            </div>
+            <div>
+              <p class="text-sm opacity-90 mb-1">🎯 Drop Location</p>
+              <p class="text-lg font-semibold">{{ ride.destinationLocation }}</p>
+            </div>
+            <div>
+              <p class="text-sm opacity-90 mb-1">Distance</p>
+              <p class="text-lg font-semibold">{{ ride.distance }} km</p>
+            </div>
+            <div>
+              <p class="text-sm opacity-90 mb-1">Duration</p>
+              <p class="text-lg font-semibold">{{ ride.durationMinutes }} min</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Start Ride Section -->
+      <div *ngIf="ride && ride.status === 'ACCEPTED'" class="bg-white rounded-2xl shadow-md p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white text-xl">
+            🔐
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900">Start Ride</h2>
+        </div>
+        <p class="text-gray-600 mb-4">Enter the OTP provided by the passenger to start the ride</p>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <p class="text-sm text-blue-800">
+            <span class="font-semibold">💡 Test OTP:</span> Use <code class="bg-blue-100 px-2 py-1 rounded font-mono">1243</code> for testing
+          </p>
+        </div>
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1">
+            <label class="text-sm font-semibold text-gray-700 mb-2 block">Customer OTP</label>
+            <input 
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="6" 
+              [(ngModel)]="otp" 
+              [disabled]="isStarting"
+              class="w-full border-2 border-gray-200 rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 tracking-widest text-center text-2xl font-bold" 
+              placeholder="1243" 
+            />
+          </div>
+          <div class="flex items-end">
+            <button 
+              (click)="startRide()" 
+              [disabled]="isStarting"
+              class="w-full md:w-auto px-8 py-4 bg-gradient-to-br from-green-500 to-green-600 hover:shadow-xl text-white rounded-xl font-bold text-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ isStarting ? '⏳ Starting...' : '▶ Start Ride' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Complete Ride Section -->
+      <div *ngIf="ride && ride.status === 'IN_PROGRESS'" class="bg-white rounded-2xl shadow-md p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white text-xl">
+            🏁
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900">Complete Ride</h2>
+        </div>
+        <p class="text-gray-600 mb-4">Click the button below to complete the ride</p>
+        <div class="flex justify-center">
+          <button 
+            (click)="completeRide()" 
+            [disabled]="isCompleting"
+            class="px-8 py-4 bg-gradient-to-br from-green-500 to-green-600 hover:shadow-xl text-white rounded-xl font-bold text-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ isCompleting ? '⏳ Completing...' : '✓ Complete Ride' }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

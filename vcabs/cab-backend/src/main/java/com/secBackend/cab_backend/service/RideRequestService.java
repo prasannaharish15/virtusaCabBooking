@@ -86,25 +86,25 @@ public class RideRequestService {
         double duration = dto.getMinitues();
 
         // 5️⃣ Handle ride type-specific validation
-        if (rideType == RideType.LOCAL && distance > 25) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "Local rides cannot exceed 25 km."));
-        }
+        // if (rideType == RideType.LOCAL && distance > 25) {
+        //     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //             .body(Map.of("message", "Local rides cannot exceed 25 km."));
+        // }
 
-        if (rideType == RideType.INTERCITY && distance < 25) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "Intercity rides must exceed 25 km."));
-        }
+        // if (rideType == RideType.INTERCITY && distance < 25) {
+        //     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //             .body(Map.of("message", "Intercity rides must exceed 25 km."));
+        // }
 
-        if (rideType == RideType.ADVANCE && dto.getScheduledTime() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "Scheduled time required for advance booking."));
-        }
+        // if (rideType == RideType.ADVANCE && dto.getScheduledTime() == null) {
+        //     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //             .body(Map.of("message", "Scheduled time required for advance booking."));
+        // }
 
-        if (rideType == RideType.RENTAL && dto.getRentalHours() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "Please specify valid rental hours."));
-        }
+        // if (rideType == RideType.RENTAL && dto.getRentalHours() <= 0) {
+        //     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //             .body(Map.of("message", "Please specify valid rental hours."));
+        // }
 
         // 6️⃣ Fare calculation - use frontend calculated fare or calculate based on distance
         double estimatedFare;
@@ -156,7 +156,7 @@ public class RideRequestService {
             rideRequest.setStatus(RideRequest.RideStatus.REQUESTED);
         } else {
             Optional<User> nearestDriver = findNearestAvailableDriver(
-                    dto.getPickUpLatitude(), dto.getPickUpLongitude(), 5);
+                    dto.getPickUpLatitude(), dto.getPickUpLongitude(), 1000);
 
             if (nearestDriver.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)

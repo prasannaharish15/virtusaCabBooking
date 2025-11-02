@@ -30,6 +30,8 @@ public class DriverRideController {
     // Start a ride
     @PostMapping("/{rideId}/start/{otp}")
     public ResponseEntity<?> startRide(@PathVariable Long rideId, Authentication auth,@PathVariable int otp) {
+        System.out.println("startRide"+otp);
+
         return driverRideService.startRide(rideId, auth.getName(),otp);
     }
 
@@ -51,9 +53,9 @@ public class DriverRideController {
         return rideHistoryService.getDriverHistory(auth.getName());
     }
 
-    @GetMapping("/getPendingRide/{type}")
-    public ResponseEntity<?> getPendingRides(@PathVariable("type") String type, Authentication auth) {
-        // 'auth.getName()' returns the username/email of the authenticated driver
-        return driverRideService.getPendingRides(type, auth.getName());
-    }
+//    @GetMapping("/getPendingRide/{type}")
+//    public ResponseEntity<?> getPendingRides(@PathVariable("type") String type, Authentication auth) {
+//        // 'auth.getName()' returns the username/email of the authenticated driver
+//        return driverRideService.getPendingRides(type, auth.getName());
+//    }
 }

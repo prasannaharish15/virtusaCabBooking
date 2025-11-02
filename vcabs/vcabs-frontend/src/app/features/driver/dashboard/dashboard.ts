@@ -1,13 +1,11 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AvailabilityToggleComponent } from '../availability-status/availability-toggle/availability-toggle';
 import { BreakModeComponent } from '../availability-status/break-mode/break-mode';
 import { StatusSummaryComponent } from '../availability-status/status-summary/status-summary';
-import { DriverRequestsStore, DriverRideRequest } from '../shared/driver-requests.store';
-import { DriverRidesStore, DriverStats, EarningItem } from '../shared/driver-rides.store';
 import { Observable } from 'rxjs';
-import { SeedService } from '../../../core/services/seed';
+import { DriverService, DriverHomePageDto, RideResponseDto } from '../../../core/services/driver';
 
 
 export interface StatusLog {
@@ -40,16 +38,22 @@ interface RideRequest {
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })
-export class Dashboard implements OnInit{
+export class Dashboard implements OnInit, AfterViewChecked {
 
   @ViewChild(StatusSummaryComponent) statusLogger!: StatusSummaryComponent;
 
-  driverName = 'Ramesh Kumar';
-  driverId = 'DRV123823';
+  driverName = '';
+  driverId = 0;
+  
+  // Backend data
+  homepageData: DriverHomePageDto | null = null;
+  acceptedRide: RideResponseDto | null = null;
+  isLoadingData = true;
 
   isOnline = true;
   isOnBreak = false;
   breakReason = '';
+  showStatusHistory = false;
 
   currentStatus: 'Online' | 'Offline' | 'Break' = 'Online';
   currentTimestamp: Date = new Date();
@@ -59,113 +63,196 @@ export class Dashboard implements OnInit{
 
   stats = {
     today: {
-      rides: 4,
-      earnings: 760,
-      rating: 4.95,
-      time: '3.2'
+      rides: 0,
+      earnings: 0,
+      rating: 0,
+      time: '0'
     }
   };
 
-  earnings = {
-    today: 760,
-    week: 3520,
-    month: 14670
-  };
 
-  // Live streams (typed for template async pipe)
-  live$!: Observable<DriverStats>;
-  earnings$!: Observable<EarningItem[]>;
-
-  recentFeedback = [
-    { rider: 'Amrita Singh', rating: 5, comment: 'Excellent trip!', date: new Date(Date.now() - 1200000) },
-    { rider: 'Jayant R', rating: 5, comment: 'Quick and safe!', date: new Date(Date.now() - 5500000) },
-    { rider: 'Varsha B', rating: 4, comment: 'Polite driver', date: new Date(Date.now() - 87000000) },
-  ];
-
-  notifications = [
-    { message: 'System maintenance at 2am tonight.' }
-  ];
   incomingRideRequest: RideRequest | null = null;
-  mockRideRequests: RideRequest[] = [
-    { id: 'REQ101', passengerName: 'Anita Sharma', pickupLocation: 'Brigade Road', dropLocation: 'Indiranagar', fare: 220, distance: 8, requestedAt: new Date(Date.now() - 2 * 60 * 1000) },
-    { id: 'REQ102', passengerName: 'Vikram S', pickupLocation: 'Koramangala', dropLocation: 'HSR Layout', fare: 180, distance: 5, requestedAt: new Date(Date.now() - 7 * 60 * 1000) },
-    { id: 'REQ103', passengerName: 'Neha Verma', pickupLocation: 'Whitefield', dropLocation: 'Marathahalli', fare: 320, distance: 12, requestedAt: new Date(Date.now() - 15 * 60 * 1000) }
-  ];
+  mockRideRequests: RideRequest[] = [];
 
-  constructor(private requestsStore: DriverRequestsStore, private ridesStore: DriverRidesStore, private router: Router, private seed: SeedService) {
-    this.live$ = this.ridesStore.observeStats();
-    this.earnings$ = this.ridesStore.observeEarnings();
-  }
+  constructor(
+    private router: Router,
+    private driverService: DriverService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  private viewCheckedCount = 0;
 
   ngOnInit(): void {
-    // Initialize from seed JSON into localStorage-backed store state (one source of truth)
-    this.seed.initIfEmpty().then(() => {
-      // If after seeding, requests store is still empty, fall back to mock seed for preview
-      if (this.requestsStore.getSnapshot().length === 0) {
-        const seed: DriverRideRequest[] = this.mockRideRequests.map(r => ({ ...r }));
-        this.requestsStore.set(seed);
-      }
-    });
-    // For demo purposes, simulate an incoming request shortly after load
-    this.simulateIncomingRequest();
-  }
-
-  simulateIncomingRequest() {
-    // Simulate a ride request arriving after 5 seconds
-    setTimeout(() => {
-      this.incomingRideRequest = {
-        id: 'REQ123',
-        passengerName: 'Rajesh Kumar',
-        pickupLocation: 'MG Road',
-        dropLocation: 'Airport',
-        fare: 350,
-        distance: 12,
-        requestedAt: new Date()
-      };
+    console.log('🚀 Dashboard Component Initialized');
+    console.log('📍 Current User Token:', localStorage.getItem('authToken') ? 'EXISTS' : 'MISSING');
+    console.log('📍 Current User Role:', localStorage.getItem('userRole'));
+    console.log('📍 Current User Email:', localStorage.getItem('userEmail'));
+    console.log('📍 Initial Stats:', this.stats);
+    console.log('📍 Initial Driver Name:', this.driverName);
+    
+    // Load real data from backend
+    this.loadDashboardData();
+    this.loadAcceptedRides();
+    
+    // Poll for new accepted rides every 5 seconds for real-time updates
+    setInterval(() => {
+      console.log('🔄 Polling for accepted rides...');
+      this.loadAcceptedRides();
     }, 5000);
   }
+
+  ngAfterViewChecked(): void {
+    // Only log first few times to avoid console spam
+    if (this.viewCheckedCount < 5) {
+      console.log(`🔍 View Checked #${this.viewCheckedCount}:`, {
+        driverName: this.driverName,
+        todayRides: this.stats.today.rides,
+        todayEarnings: this.stats.today.earnings,
+        isLoadingData: this.isLoadingData
+      });
+      this.viewCheckedCount++;
+    }
+  }
+
+  /**
+   * Load dashboard data from backend API
+   */
+  loadDashboardData(): void {
+    console.log('📊 Loading Dashboard Data...');
+    this.driverService.getDriverHomepage().subscribe({
+      next: (data) => {
+        console.log('✅ Dashboard Data Loaded Successfully:', data);
+        this.homepageData = data;
+        this.driverName = data.driverName;
+        this.driverId = data.driverId;
+        // Update stats with real data
+        this.stats.today.rides = data.todayRideNo;
+        this.stats.today.earnings = data.todayEarnings;
+        this.isLoadingData = false;
+        console.log('✅ Dashboard State Updated:', {
+          driverName: this.driverName,
+          driverId: this.driverId,
+          todayRides: this.stats.today.rides,
+          todayEarnings: this.stats.today.earnings
+        });
+        // Manually trigger change detection
+        this.cdr.detectChanges();
+        console.log('✅ Change Detection Triggered');
+      },
+      error: (err) => {
+        console.error('❌ Error loading dashboard data:', err);
+        console.error('❌ Error Status:', err.status);
+        console.error('❌ Error Message:', err.message);
+        console.error('❌ Full Error:', err);
+        this.isLoadingData = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /**
+   * Load accepted rides from backend API
+   */
+  loadAcceptedRides(): void {
+    console.log('🚗 Checking for Accepted Rides...');
+    this.driverService.getAcceptedRides().subscribe({
+      next: (response) => {
+        console.log('✅ Accepted Rides Response:', response);
+        console.log('✅ Response has ride?', !!response.ride);
+        
+        if (response && response.ride) {
+          console.log('✅ Found Accepted Ride:', response.ride);
+          console.log('✅ Ride Status:', response.ride.status);
+          console.log('✅ Ride ID:', response.ride.rideId);
+          
+          this.acceptedRide = response.ride;
+          
+          // Show as incoming request in UI
+          this.incomingRideRequest = {
+            id: response.ride.rideId.toString(),
+            passengerName: response.ride.customerName,
+            pickupLocation: response.ride.pickUpLocation,
+            dropLocation: response.ride.destinationLocation,
+            fare: response.ride.fare,
+            distance: response.ride.distance,
+            requestedAt: new Date(response.ride.scheduledDateTime)
+          };
+          
+          console.log('✅ Incoming Ride Request Set:', this.incomingRideRequest);
+          console.log('✅ incomingRideRequest is null?', this.incomingRideRequest === null);
+          console.log('✅ incomingRideRequest is undefined?', this.incomingRideRequest === undefined);
+          
+          // Force change detection
+          this.cdr.detectChanges();
+          console.log('✅ Change detection triggered for accepted ride');
+        } else {
+          console.log('ℹ️ No ride in response or response.ride is null');
+          // Only clear if we're sure there's no ride
+          if (!response || !response.ride) {
+            this.acceptedRide = null;
+            this.incomingRideRequest = null;
+            this.cdr.detectChanges();
+          }
+        }
+      },
+      error: (err) => {
+        // No accepted rides found - this is normal
+        if (err.status === 404) {
+          console.log('ℹ️ No accepted rides (404 - Normal)');
+          // Don't clear existing ride on 404, might be a temporary issue
+          // Only clear if we haven't set it yet
+          if (!this.incomingRideRequest) {
+            this.acceptedRide = null;
+            this.incomingRideRequest = null;
+          }
+        } else {
+          console.error('❌ Error loading accepted rides:', err);
+          console.error('❌ Error Status:', err.status);
+          console.error('❌ Error Message:', err.message);
+          console.error('❌ Full Error:', err);
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   acceptRequest() {
     if (!this.incomingRideRequest) return;
     const r = this.incomingRideRequest;
     this.changeStatus('Online', `Accepted ride from ${r.passengerName}`);
-    // Add to ongoing with fixed fare
-    this.ridesStore.acceptRide({
-      id: r.id,
-      passengerName: r.passengerName,
-      pickupLocation: r.pickupLocation,
-      dropLocation: r.dropLocation,
-      fare: r.fare
-    });
+    
+    // Navigate to ride tracking (backend already marked as accepted)
     this.incomingRideRequest = null;
     this.router.navigate(['/driver/ride-tracking', r.id]);
   }
 
   rejectRequest() {
-    if (this.incomingRideRequest) {
-      console.log('Rejected:', this.incomingRideRequest);
-      this.incomingRideRequest = null;
+    if (!this.incomingRideRequest) {
+      console.warn('⚠️ No incoming ride request to reject');
+      return;
     }
-  }
-
-  acceptMockPreview(request: RideRequest) {
-    // Immediately accept into rides store and navigate to tracking
-    this.changeStatus('Online', `Preview accept for ${request.passengerName}`);
-    this.ridesStore.acceptRide({
-      id: request.id,
-      passengerName: request.passengerName,
-      pickupLocation: request.pickupLocation,
-      dropLocation: request.dropLocation,
-      fare: request.fare
+    
+    const rideId = parseInt(this.incomingRideRequest.id);
+    console.log('❌ Rejecting Ride:', rideId);
+    
+    // Call backend to cancel the ride
+    this.driverService.cancelRide(rideId).subscribe({
+      next: (response) => {
+        console.log('✅ Ride Rejected Successfully:', response);
+        this.incomingRideRequest = null;
+        this.acceptedRide = null;
+        // Reload accepted rides
+        this.loadAcceptedRides();
+      },
+      error: (err) => {
+        console.error('❌ Error rejecting ride:', err);
+        console.error('❌ Error Status:', err.status);
+        console.error('❌ Error Message:', err.message);
+        alert('Failed to reject ride. Please try again.');
+      }
     });
-    // Keep preview list cleanup, too
-    this.removeFromPreview(request.id);
-    this.router.navigate(['/driver/ride-tracking', request.id]);
   }
 
-  removeFromPreview(id: string) {
-    this.mockRideRequests = this.mockRideRequests.filter(r => r.id !== id);
-    this.requestsStore.remove(id);
-  }
 
 
   changeStatus(newStatus: 'Online' | 'Offline' | 'Break', note?: string, reason?: string) {
@@ -189,10 +276,67 @@ export class Dashboard implements OnInit{
   }
 
   onAvailabilityChange(isOnline: boolean) {
-    this.changeStatus(isOnline ? 'Online' : 'Offline');
+    // Check if driver has active ride
+    if (this.hasActiveRide()) {
+      alert('Cannot change availability while you have an active ride!');
+      // Revert the toggle
+      this.isOnline = !isOnline;
+      return;
+    }
+
+    console.log('🔄 Updating Availability Status:', isOnline ? 'ONLINE' : 'OFFLINE');
+    // Update backend availability status
+    this.driverService.updateAvailability(isOnline).subscribe({
+      next: (response) => {
+        console.log('✅ Availability Updated Successfully:', response);
+        console.log('✅ New Status:', isOnline ? 'ONLINE' : 'OFFLINE');
+        this.changeStatus(isOnline ? 'Online' : 'Offline');
+      },
+      error: (err) => {
+        console.error('❌ Error updating availability:', err);
+        console.error('❌ Error Status:', err.status);
+        console.error('❌ Error Message:', err.message);
+        // Revert the toggle on error
+        this.isOnline = !isOnline;
+        alert('Failed to update availability. Please try again.');
+      }
+    });
   }
 
   onBreakModeChange(event: { isOnBreak: boolean, breakReason: string }) {
-    this.changeStatus(event.isOnBreak ? 'Break' : 'Online', event.isOnBreak ? 'Started break' : 'Ended break', event.breakReason);
+    // Check if driver has active ride
+    if (this.hasActiveRide()) {
+      alert('Cannot take a break while you have an active ride!');
+      // Revert the break mode
+      this.isOnBreak = !event.isOnBreak;
+      return;
+    }
+
+    console.log('🔄 Updating Break Mode:', event.isOnBreak ? 'ON BREAK' : 'ENDING BREAK');
+    
+    // When going on break, set availability to false (offline)
+    // When ending break, set availability to true (online)
+    const newAvailability = !event.isOnBreak;
+    
+    this.driverService.updateAvailability(newAvailability).subscribe({
+      next: (response) => {
+        console.log('✅ Break Mode Updated Successfully:', response);
+        this.changeStatus(event.isOnBreak ? 'Break' : 'Online', event.isOnBreak ? 'Started break' : 'Ended break', event.breakReason);
+      },
+      error: (err) => {
+        console.error('❌ Error updating break mode:', err);
+        // Revert the break mode on error
+        this.isOnBreak = !event.isOnBreak;
+        alert('Failed to update break mode. Please try again.');
+      }
+    });
+  }
+
+  /**
+   * Check if driver has an active ride (ACCEPTED or IN_PROGRESS)
+   */
+  hasActiveRide(): boolean {
+    return this.acceptedRide !== null && 
+           (this.acceptedRide.status === 'ACCEPTED' || this.acceptedRide.status === 'IN_PROGRESS');
   }
 }

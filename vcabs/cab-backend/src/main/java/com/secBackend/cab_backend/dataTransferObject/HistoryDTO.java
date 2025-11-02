@@ -27,6 +27,19 @@ public class HistoryDTO {
     private String rideType;
 
 
-    public HistoryDTO(Long id, Long id1, String username, String phoneNumber, String pickUpLocation, String destinationLocation, LocalDateTime acceptedAt, LocalDateTime startedAt, LocalDateTime completedAt, double distanceKm, double durationMinutes, int fare, String name) {
+    public HistoryDTO(Long rideId, Long id, String name, String phone, String pickUpLocation, String dropOffLocation, LocalDateTime acceptAt, LocalDateTime startedAt, LocalDateTime completedAt, double distanceKm, double durationMinutes, int fare, String status) {
+        this.rideId = rideId;
+        this.id = id;
+        this.name = name;
+        this.phone = phone;
+        this.pickUpLocation = pickUpLocation;
+        this.dropOffLocation = dropOffLocation;
+        this.acceptAt = acceptAt;
+        this.startedAt = startedAt;
+        this.completedAt = completedAt;
+        this.distanceKm = distanceKm;
+        this.durationMinutes = durationMinutes;
+        this.fare = fare;
+        this.status = status;
     }
 }
