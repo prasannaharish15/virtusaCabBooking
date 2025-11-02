@@ -483,22 +483,8 @@ export class RideTracking implements OnInit, AfterViewInit, OnDestroy {
           }
         }
         
-        // Send location to backend for passenger tracking
-        if (this.ride && this.ride.driverId) {
-          this.driverService.updateDriverLocation(
-            this.ride.driverId, 
-            this.driverLat, 
-            this.driverLng
-          ).subscribe({
-            next: (response) => {
-              console.log('✅ Location sent to backend:', response);
-            },
-            error: (err) => {
-              // Log error but don't interrupt location tracking
-              console.warn('⚠️ Failed to send location to backend:', err);
-            }
-          });
-        }
+        // TODO: Send location to backend for passenger tracking
+        // this.driverService.updateDriverLocation(this.rideId, this.driverLat, this.driverLng)
       },
       (error) => {
         console.error('❌ Error getting location:', error);

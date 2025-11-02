@@ -39,61 +39,21 @@ public class DriverService {
         this.rideRequestRepository = rideRequestRepository;
     }
 
-    /**
-     * Update driver availability with validation and logging
-     * @param email - Driver's email address
-     * @param available - Availability status (true = online, false = offline)
-     * @return ResponseEntity with status message
-     */
+    //  Update driver availability
     public ResponseEntity<?> setDriverAvailability(String email, boolean available) {
-        try {
-            // Validate email
-            if (email == null || email.trim().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Email cannot be null or empty"));
-            }
+        User driver = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-            // Find driver by email
-            User driver = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-            // Validate driver profile exists
-            if (driver.getDriverProfile() == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Driver Profile Not Found", 
-                                  "message", "Driver profile does not exist for this user"));
-            }
-
-            DriverProfile profile = driver.getDriverProfile();
-            
-            // Check if availability is already set to the requested value
-            if (profile.isAvailable() == available) {
-                return ResponseEntity.status(HttpStatus.OK)
-                    .body(Map.of("message", "Driver availability is already set to " + available,
-                                  "available", available));
-            }
-
-            // Update availability
-            profile.setAvailable(available);
-            driverProfileRepository.save(profile);
-
-            // Log the change
-            System.out.println("Driver availability updated: " + email + " -> " + (available ? "ONLINE" : "OFFLINE"));
-
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(Map.of("message", "Driver availability updated successfully",
-                                  "available", available));
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", "User not found", "message", e.getMessage()));
-        } catch (Exception e) {
-            // Log the exception for debugging
-            System.err.println("Error updating driver availability: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Failed to update driver availability",
-                              "message", "An unexpected error occurred"));
+        if (driver.getDriverProfile() == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("Message", "Driver Profile Not Found"));
         }
+
+        DriverProfile profile = driver.getDriverProfile();
+        profile.setAvailable(available);
+        driverProfileRepository.save(profile);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Map.of("Message", "Driver Availability Updated to " + available));
     }
 
     //  Get profile data

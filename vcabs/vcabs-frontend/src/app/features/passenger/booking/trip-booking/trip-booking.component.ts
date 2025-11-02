@@ -921,24 +921,16 @@ export class TripBookingComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // Poll driver location every 5 seconds
     this.driverLocationSubscription = this.bookingService.pollDriverLocation(driverId, 5000).subscribe({
-      next: (location: DriverLocation | null) => {
-        if (location && location.latitude != null && location.longitude != null) {
-          console.log('📍 Driver location update:', location);
-          this.updateDriverMarker(location.latitude, location.longitude);
-          
-          // Update active ride with latest driver location
-          if (this.activeRide) {
-            this.activeRide.driverLatitude = location.latitude;
-            this.activeRide.driverLongitude = location.longitude;
-            if (location.updatedAt) {
-              this.activeRide.driverLocationUpdatedAt = location.updatedAt;
-            }
-            this.rideStateService.updateActiveRide(this.activeRide);
-          }
-        } else {
-          // Location is null - driver may not have started tracking yet
-          console.debug('📍 Driver location not available yet - waiting for driver to start tracking...');
-          // Don't update marker, just wait for next poll
+      next: (location: DriverLocation) => {
+        console.log('📍 Driver location update:', location);
+        this.updateDriverMarker(location.latitude, location.longitude);
+        
+        // Update active ride with latest driver location
+        if (this.activeRide) {
+          this.activeRide.driverLatitude = location.latitude;
+          this.activeRide.driverLongitude = location.longitude;
+          this.activeRide.driverLocationUpdatedAt = location.updatedAt;
+          this.rideStateService.updateActiveRide(this.activeRide);
         }
       },
       error: (err) => {

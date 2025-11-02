@@ -340,34 +340,5 @@ export class DriverService {
     );
   }
 
-  // ============ Location Update APIs ============ //
-
-  /**
-   * POST /api/cabs/{driverId}/location
-   * Update driver's current location
-   * @param driverId - The driver's user ID
-   * @param latitude - Current latitude
-   * @param longitude - Current longitude
-   * Returns: {message: string}
-   */
-  updateDriverLocation(driverId: number, latitude: number, longitude: number): Observable<{message: string}> {
-    const url = `http://localhost:8080/api/cabs/${driverId}/location`;
-    const body = { latitude, longitude };
-    console.log('📍 API REQUEST - Update Location:', url);
-    console.log('📍 Body:', body);
-    
-    return this.http.post<{message: string}>(url, body).pipe(
-      tap(response => {
-        console.log('✅ Location updated successfully:', response);
-      }),
-      catchError(error => {
-        console.error('❌ Error updating location:', error);
-        // Don't throw error - location updates should fail silently to not disrupt ride tracking
-        // Just log the error and return a success response to continue operation
-        return throwError(() => error);
-      })
-    );
-  }
-
 }
 

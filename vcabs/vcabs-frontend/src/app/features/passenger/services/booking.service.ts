@@ -254,111 +254,46 @@ export class BookingService {
    */
   getDriverLocation(driverId: number): Observable<any> {
     const headers = this.getAuthHeaders();
-    if (!driverId || driverId <= 0) {
-      console.warn('⚠️ Invalid driver ID:', driverId);
-      return of(null);
-    }
-    
     return this.http.get(`http://localhost:8080/api/cabs/${driverId}/location`, { 
       headers,
       withCredentials: true 
     }).pipe(
-      timeout(10000), // 10 second timeout
       catchError((error) => {
-        // Handle different error scenarios
+        // Silently handle 404 errors for driver location (endpoint not implemented yet)
         if (error.status === 404) {
-          console.log('ℹ️ Driver location not found (404) - driver may not be tracking location');
+          console.log('ℹ️ Driver location endpoint not available (404) - feature not yet implemented');
           return of(null); // Return null instead of throwing error
-        } else if (error.status === 0) {
-          console.warn('⚠️ Network error fetching driver location - check connection');
-          return of(null);
-        } else if (error.name === 'TimeoutError') {
-          console.warn('⚠️ Timeout fetching driver location');
-          return of(null);
         }
-        console.warn('⚠️ Error fetching driver location:', error.status, error.message);
-        return of(null); // Return null to allow graceful degradation
+        return this.handleError(error);
       })
     );
   }
 
   /**
-   * Poll driver location at regular intervals with exponential backoff on errors
+   * Poll driver location at regular intervals
    * @param driverId - Driver ID
    * @param intervalMs - Polling interval in milliseconds (default: 5000ms = 5 seconds)
    */
   pollDriverLocation(driverId: number, intervalMs: number = 5000): Observable<any> {
     return new Observable(observer => {
-      let consecutiveErrors = 0;
-      let currentInterval = intervalMs;
-      const maxInterval = 30000; // Max 30 seconds between polls
-      const maxConsecutiveErrors = 5;
-      let intervalId: any = null;
-      
-      const poll = () => {
-        this.getDriverLocation(driverId).subscribe({
-          next: (location) => {
-            if (location && location.latitude != null && location.longitude != null) {
-              // Reset error count on success
-              consecutiveErrors = 0;
-              if (currentInterval !== intervalMs) {
-                // Reset interval if it was increased due to errors
-                currentInterval = intervalMs;
-                if (intervalId) {
-                  clearInterval(intervalId);
-                  intervalId = setInterval(poll, currentInterval);
-                }
-              }
-              observer.next(location);
-            } else {
-              // Location is null or invalid - driver may not have started tracking yet
-              console.debug('📍 Driver location not available yet');
-              // Don't increment error count for null responses
-              observer.next(null); // Still emit null to keep connection alive
-            }
-          },
-          error: (err) => {
-            consecutiveErrors++;
-            console.warn(`⚠️ Driver location fetch failed (${consecutiveErrors}/${maxConsecutiveErrors}):`, err);
-            
-            // Exponential backoff on consecutive errors
-            if (consecutiveErrors >= maxConsecutiveErrors) {
-              const newInterval = Math.min(Math.round(currentInterval * 1.5), maxInterval);
-              if (newInterval !== currentInterval) {
-                currentInterval = newInterval;
-                console.log(`⏱️ Increased polling interval to ${currentInterval}ms due to errors`);
-                if (intervalId) {
-                  clearInterval(intervalId);
-                  intervalId = setInterval(poll, currentInterval);
-                }
-              }
-            }
-            
-            // Emit error only if we've had too many consecutive failures
-            if (consecutiveErrors >= maxConsecutiveErrors * 2) {
-              console.error('❌ Too many consecutive errors, stopping polling');
-              observer.error(err);
-            } else {
-              // Continue polling - emit null to keep observable alive
-              observer.next(null);
-            }
-          }
-        });
-      };
-      
       // Initial fetch
-      poll();
-      
-      // Start polling at regular intervals
-      intervalId = setInterval(poll, currentInterval);
+      this.getDriverLocation(driverId).subscribe({
+        next: (location) => observer.next(location),
+        error: (err) => console.warn('Driver location fetch failed:', err)
+      });
+
+      // Poll at intervals
+      const intervalId = setInterval(() => {
+        this.getDriverLocation(driverId).subscribe({
+          next: (location) => observer.next(location),
+          error: (err) => console.warn('Driver location fetch failed:', err)
+        });
+      }, intervalMs);
 
       // Cleanup on unsubscribe
       return () => {
         console.log('🛑 Stopped polling driver location');
-        if (intervalId) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
+        clearInterval(intervalId);
       };
     });
   }
