@@ -54,6 +54,11 @@ public class GlobalExceptionHandler {
     //Fallback All Exception
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAll(Exception ex, WebRequest request) {
+        // Print full stack trace for debugging
+        System.err.println("=== UNHANDLED EXCEPTION ===");
+        ex.printStackTrace();
+        System.err.println("=========================");
+        
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
